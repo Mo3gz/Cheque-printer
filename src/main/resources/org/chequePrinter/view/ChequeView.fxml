@@ -1,0 +1,89 @@
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.chequePrinter.controller.SimpleController">
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE">
+            <Tab text="Check Creation">
+                <HBox spacing="10" style="-fx-padding: 10;">
+                    <VBox HBox.hgrow="ALWAYS">
+                        <Label text="Live Preview" style="-fx-font-weight: bold;"/>
+                        <Pane fx:id="previewPane" prefWidth="467" prefHeight="207" minWidth="467" minHeight="207" maxWidth="467" maxHeight="207" style="-fx-border-color: black; -fx-border-width: 1;">
+                            <ImageView fx:id="chequeImageView" fitWidth="467" fitHeight="207" preserveRatio="false"/>
+                            <Text fx:id="dateText"/>
+                            <Text fx:id="beneficiaryText"/>
+                            <Text fx:id="amountWordsText"/>
+                            <Text fx:id="amountText"/>
+                            <Text fx:id="signerText"/>
+                        </Pane>
+                    </VBox>
+                    <VBox spacing="10" prefWidth="300">
+                        <Label text="Data Entry" style="-fx-font-weight: bold;"/>
+                        <GridPane hgap="10" vgap="5">
+                            <Label text="Bank:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            <ComboBox fx:id="bankComboBox" GridPane.rowIndex="0" GridPane.columnIndex="1" HBox.hgrow="ALWAYS"/>
+
+                            <Label text="Template:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                            <ComboBox fx:id="templateComboBox" GridPane.rowIndex="1" GridPane.columnIndex="1" HBox.hgrow="ALWAYS"/>
+
+                            <Label text="First Check Date:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                            <DatePicker fx:id="firstCheckDatePicker" GridPane.rowIndex="2" GridPane.columnIndex="1" HBox.hgrow="ALWAYS"/>
+
+                            <Label text="Beneficiary Name:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                            <TextField fx:id="beneficiaryField" GridPane.rowIndex="3" GridPane.columnIndex="1" HBox.hgrow="ALWAYS"/>
+
+                            <Label text="Amount (Numeric):" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                            <TextField fx:id="amountField" GridPane.rowIndex="4" GridPane.columnIndex="1" HBox.hgrow="ALWAYS"/>
+
+                            <Label text="Amount (In Words):" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                            <TextField fx:id="amountWordsField" editable="false" GridPane.rowIndex="5" GridPane.columnIndex="1" HBox.hgrow="ALWAYS"/>
+
+                            <Label text="Signer's Name:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                            <TextField fx:id="signerField" GridPane.rowIndex="6" GridPane.columnIndex="1" HBox.hgrow="ALWAYS"/>
+                        </GridPane>
+
+                        <VBox spacing="5" style="-fx-border-color: lightgray; -fx-padding: 10; -fx-border-radius: 5;">
+                             <Label text="Multiple Check Generation" style="-fx-font-weight: bold;"/>
+                             <GridPane hgap="10" vgap="5">
+                                <Label text="Number of Checks:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                <TextField fx:id="numChecksField" GridPane.rowIndex="0" GridPane.columnIndex="1" HBox.hgrow="ALWAYS"/>
+
+                                <Label text="Time Interval:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                <ComboBox fx:id="intervalComboBox" GridPane.rowIndex="1" GridPane.columnIndex="1" HBox.hgrow="ALWAYS"/>
+                            </GridPane>
+                            <Button text="Print and Save Multiple Checks" onAction="#printAndSaveMultipleChecks" maxWidth="Infinity"/>
+                        </VBox>
+
+                        <Button text="Print and Save Single Check" onAction="#printAndSaveSingleCheck" maxWidth="Infinity"/>
+                        
+                    </VBox>
+                </HBox>
+            </Tab>
+            <Tab text="Check Records">
+                <VBox spacing="10" style="-fx-padding: 10;">
+                    <HBox spacing="10">
+                        <TextField fx:id="filterBeneficiaryField" promptText="Filter by Signer Name" HBox.hgrow="ALWAYS"/>
+                        <DatePicker fx:id="startDatePicker" promptText="Start Date"/>
+                        <DatePicker fx:id="endDatePicker" promptText="End Date"/>
+                        <Button text="Apply Date Filter" onAction="#applyDateFilter"/>
+                        <Button text="Clear Filters" onAction="#clearFilters"/>
+                    </HBox>
+                    <TableView fx:id="chequeTableView" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="idColumn" text="ID"/>
+                            <TableColumn fx:id="dateColumn" text="Date"/>
+                            <TableColumn fx:id="beneficiaryColumn" text="Beneficiary"/>
+                            <TableColumn fx:id="amountNumericColumn" text="Amount"/>
+                            <TableColumn fx:id="amountWordsColumn" text="Amount in Words"/>
+                            <TableColumn fx:id="signerColumn" text="Signer"/>
+                        </columns>
+                    </TableView>
+                    <Button text="Delete Selected" onAction="#deleteSelectedRecord"/>
+                </VBox>
+            </Tab>
+        </TabPane>
+    </center>
+</BorderPane>

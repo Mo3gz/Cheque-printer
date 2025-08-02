@@ -1,10 +1,11 @@
-package org.chequePrinter;
+package org.chequePrinter.service;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
+import org.chequePrinter.model.PdfContent;
 
 import com.ibm.icu.text.ArabicShaping;
 import com.ibm.icu.text.ArabicShapingException;
@@ -124,8 +125,7 @@ public class PdfGenerator {
             } else {
                 for (List<PdfContent> pageContents : allPagesContent) {
                     // Create PDRectangle with custom dimensions and use it directly in PDPage constructor
-                    PDRectangle customSize = new PDRectangle(pageWidth, pageHeight);
-                    PDPage page = new PDPage(customSize);
+                    PDPage page = new PDPage(new PDRectangle(pageWidth, pageHeight));
                     
                     document.addPage(page);
                     
@@ -145,7 +145,6 @@ public class PdfGenerator {
                             for (PdfContent content : pageContents) {
                                 contentStream.setFont(font, content.fontSize);
                                 contentStream.beginText();
-
                                 contentStream.newLineAtOffset(content.x, content.y);
 
                                 // Process Arabic text
