@@ -252,12 +252,22 @@ public class SimpleController implements Initializable {
 
         try {
             ChequeData chequeData = createChequeData();
-            
+
+            BankTemplate.Template selectedTemplate = templateComboBox.getValue();
+            if (selectedTemplate == null) {
+                showAlert("Error", "Please select a valid bank template before printing.");
+                return;
+            }
+
+            float widthInCm = selectedTemplate.getWidth();
+            float heightInCm = selectedTemplate.getHeight();
+
             // Generate PDF and print
             PDDocument document = generateChequePDF(chequeData);
-            
+
+
             // Print the PDF
-            org.chequePrinter.service.PdfPrinter.printPdf(document, 16.6f, 7.5f);
+            org.chequePrinter.service.PdfPrinter.printPdf(document, widthInCm, heightInCm);
             
             // Save to database
             DatabaseService.saveCheque(chequeData);
@@ -354,7 +364,7 @@ public class SimpleController implements Initializable {
                                                          allPagesContent, "Amiri-Regular.ttf", templateImagePath);
             
             // Print the PDF
-            org.chequePrinter.service.PdfPrinter.printPdf(document, 16.6f, 7.5f);
+            org.chequePrinter.service.PdfPrinter.printPdf(document, selectedTemplate.getWidth(), selectedTemplate.getHeight());
             
             loadChequeRecords();
             showAlert("Success", numChecks + " cheques printed and saved successfully!");

@@ -23,6 +23,9 @@ public class PdfPrinter {
         float widthPoints = widthInches * 72f;
         float heightPoints = heightInches * 72f;
 
+        System.out.println("=== PDFPRINTER DIMENSIONS DEBUG ===");
+        System.out.println("Template dimensions from bank.json: " + widthCm + " x " + heightCm + " cm");
+        System.out.println("Converted to points: " + widthPoints + " x " + heightPoints);
 
         // Configure paper
         Paper paper = new Paper();
@@ -34,6 +37,7 @@ public class PdfPrinter {
         pageFormat.setPaper(paper);
         if (widthPoints > heightPoints) {
             pageFormat.setOrientation(PageFormat.LANDSCAPE);
+            System.out.println("Orientation: LANDSCAPE");
         } else {
             pageFormat.setOrientation(PageFormat.PORTRAIT);
             System.out.println("Orientation: PORTRAIT");
@@ -59,7 +63,7 @@ public class PdfPrinter {
     }
 
     public static void main(String[] args) throws PrinterException, IOException {
-        PDDocument doc = PDDocument.load(new File("debug_cheque_1754139809967.pdf"));
+        PDDocument doc = PDDocument.load(new File("debug_cheque_1754141199618.pdf"));
         PdfPrinter.printPdf(doc, 17.5f, 8.2f);
     }
 }

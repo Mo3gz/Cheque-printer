@@ -236,10 +236,21 @@ public class ChequeController {
         }
 
         try {
-            List<ChequeData> chequesToPrint = getChequeDataList(numChecks);
-            PDDocument document = PdfService.createPdf(bankTemplate.getTemplates().get(0), chequesToPrint, intervalComboBox.getValue());
+            BankTemplate.Template selectedTemplate = bankTemplate.getTemplates().get(0);
 
-            org.chequePrinter.service.PdfPrinter.printPdf(document, 16.6f, 7.5f);
+            if (selectedTemplate == null) {
+                showAlert("Error", "Please select a valid bank template before printing.");
+                return;
+            }
+
+            // Retrieve template dimensions
+            float widthInCm = selectedTemplate.getWidth();
+            float heightInCm = selectedTemplate.getHeight();
+
+            List<ChequeData> chequesToPrint = getChequeDataList(numChecks);
+            PDDocument document = PdfService.createPdf(selectedTemplate, chequesToPrint, intervalComboBox.getValue());
+
+            org.chequePrinter.service.PdfPrinter.printPdf(document, widthInCm, heightInCm);
 
             // Save records to the database with the correct date format
             for (ChequeData cheque : chequesToPrint) {

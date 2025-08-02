@@ -18,8 +18,8 @@
       {
         "templateName": "NBE Premium",
         "imagePath": "/templates/nbe_template_2.jpg",
-        "width": 16.7,
-        "height": 8.1,
+        "width": 24.7,
+        "height": 15.1,
         "fields": {
           "dateField": { "x": 370, "y": 200, "fontSize": 14, "alignment": 1, "width": 120 },
           "beneficiaryField": { "x": 180, "y": 160, "fontSize": 14, "alignment": 1, "width": 150 },

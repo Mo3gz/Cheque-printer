@@ -171,17 +171,6 @@ public class PdfGenerator {
         if (document.getNumberOfPages() > 0) {
             org.apache.pdfbox.pdmodel.PDPage firstPage = document.getPage(0);
             org.apache.pdfbox.pdmodel.common.PDRectangle finalSize = firstPage.getMediaBox();
-            System.out.println("Final document page dimensions: " + finalSize.getWidth() + " x " + finalSize.getHeight() + " points");
-            System.out.println("Final document page dimensions: " + (finalSize.getWidth() * 2.54f / 72f) + " x " + (finalSize.getHeight() * 2.54f / 72f) + " cm");
-            
-            // Try saving to file for verification
-            try {
-                String debugFileName = "debug_cheque_" + System.currentTimeMillis() + ".pdf";
-                document.save(debugFileName);
-                System.out.println("DEBUG: Saved PDF to " + debugFileName + " for dimension verification");
-            } catch (Exception e) {
-                System.err.println("Could not save debug PDF: " + e.getMessage());
-            }
         }
         System.out.println("============================");
         
