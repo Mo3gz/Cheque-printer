@@ -95,7 +95,7 @@ public class Main {
                     // List<PDDocument> documentarray = new ArrayList<>();
                     // documentarray.add(document); 
                     // List<PDDocument> documentarrayy = documentarray ;
-                    PdfPrinter.printPdf(document);
+                    PdfPrinter.printPdf(document, 16.6f, 7.5f);
                     document.close();
                     System.out.println("PDF Document closed.");
                 } catch (IOException e) {

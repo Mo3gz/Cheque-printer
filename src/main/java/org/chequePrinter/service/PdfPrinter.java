@@ -1,108 +1,65 @@
 package org.chequePrinter.service;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.printing.PDFPageable;
-import org.chequePrinter.model.BankTemplate;
+import org.apache.pdfbox.printing.PDFPrintable;
+import org.apache.pdfbox.printing.Scaling;
 
-import javax.print.attribute.HashPrintRequestAttributeSet;
-import javax.print.attribute.PrintRequestAttributeSet;
-import javax.print.attribute.standard.OrientationRequested;
-import javax.print.attribute.standard.MediaPrintableArea;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
+import java.awt.print.*;
+import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 public class PdfPrinter {
 
-    public static void printPdf(List<PDDocument> documents, BankTemplate.Template template) throws IOException, PrinterException {
-        if (documents == null || documents.isEmpty()) {
-            System.out.println("No documents to print.");
-            return;
-        }
-        if (template == null) {
-            System.out.println("BankTemplate.Template is null. Cannot determine page dimensions for printing.");
-            return;
-        }
-
-        PrinterJob job = PrinterJob.getPrinterJob();
-
-        // Get dimensions from the template
-        float widthInPoints = template.getWidth();
-        float heightInPoints = template.getHeight();
-
-        // Convert points to inches (1 inch = 72 points)
-        float widthInInches = widthInPoints / 72f;
-        float heightInInches = heightInPoints / 72f;
-
-        PrintRequestAttributeSet attr = new HashPrintRequestAttributeSet();
-
-        // Set orientation based on template dimensions
-        if (widthInPoints > heightInPoints) {
-            attr.add(OrientationRequested.LANDSCAPE);
-        } else {
-            attr.add(OrientationRequested.PORTRAIT);
-        }
-
-        // Set margins to zero by setting the printable area to the full page size
-        attr.add(new MediaPrintableArea(0, 0, widthInInches, heightInInches, MediaPrintableArea.INCH));
-
-        for (PDDocument document : documents) {
-            try {
-                job.setPageable(new PDFPageable(document));
-                job.print(attr);
-                System.out.println("PDF sent to printer successfully.");
-            } finally {
-                if (document != null) {
-                    document.close();
-                }
-            }
-        }
-    }
-
-     public static void printPdf(PDDocument document) throws IOException, PrinterException {
+    public static void printPdf(PDDocument document, float widthCm, float heightCm) throws IOException, PrinterException {
         if (document == null) {
-            System.out.println("Document to print is null.");
+            System.err.println("Document is null. Cannot print.");
             return;
         }
 
-        PrinterJob job = PrinterJob.getPrinterJob();
+        // Convert dimensions from cm to inches, then to points
+        float widthInches = widthCm / 2.54f;
+        float heightInches = heightCm / 2.54f;
 
-        // Get dimensions from the PDDocument's first page
-        PDPage page = document.getPage(0);
-        PDRectangle mediaBox = page.getMediaBox();
-        float widthInPoints = mediaBox.getWidth();
-        float heightInPoints = mediaBox.getHeight();
+        float widthPoints = widthInches * 72f;
+        float heightPoints = heightInches * 72f;
 
-        // Convert points to inches (1 inch = 72 points)
-        float widthInInches = widthInPoints / 72f;
-        float heightInInches = heightInPoints / 72f;
 
-        PrintRequestAttributeSet attr = new HashPrintRequestAttributeSet();
+        // Configure paper
+        Paper paper = new Paper();
+        paper.setSize(widthPoints, heightPoints);
+        paper.setImageableArea(0, 0, widthPoints, heightPoints); // No margins
 
-        // Set orientation based on document dimensions
-        if (widthInPoints > heightInPoints) {
-            attr.add(OrientationRequested.LANDSCAPE);
+        // Configure page format
+        PageFormat pageFormat = new PageFormat();
+        pageFormat.setPaper(paper);
+        if (widthPoints > heightPoints) {
+            pageFormat.setOrientation(PageFormat.LANDSCAPE);
         } else {
-            attr.add(OrientationRequested.PORTRAIT);
+            pageFormat.setOrientation(PageFormat.PORTRAIT);
+            System.out.println("Orientation: PORTRAIT");
         }
 
-        // Set margins to zero by setting the printable area to the full page size
-        attr.add(new MediaPrintableArea(0, 0, widthInInches, heightInInches, MediaPrintableArea.INCH));
+        // Prepare the printer job
+        PrinterJob job = PrinterJob.getPrinterJob();
+        PDFPrintable printable = new PDFPrintable(document, Scaling.ACTUAL_SIZE);
 
-        try {
-            job.setPageable(new PDFPageable(document));
-            job.print(attr);
+        Book book = new Book();
+        book.append(printable, pageFormat, document.getNumberOfPages());
+        job.setPageable(book);
+
+        // Open print dialog and print
+        if (job.printDialog()) {
+            job.print();
             System.out.println("PDF sent to printer successfully.");
-        } finally {
-            if (document != null) {
-                document.close();
-            }
+        } else {
+            System.out.println("Print job was cancelled.");
         }
+
+        document.close();
     }
 
-
+    public static void main(String[] args) throws PrinterException, IOException {
+        PDDocument doc = PDDocument.load(new File("debug_cheque_1754139809967.pdf"));
+        PdfPrinter.printPdf(doc, 17.5f, 8.2f);
+    }
 }
-

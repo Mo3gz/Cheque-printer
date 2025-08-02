@@ -239,7 +239,7 @@ public class ChequeController {
             List<ChequeData> chequesToPrint = getChequeDataList(numChecks);
             PDDocument document = PdfService.createPdf(bankTemplate.getTemplates().get(0), chequesToPrint, intervalComboBox.getValue());
 
-            org.chequePrinter.service.PdfPrinter.printPdf(document);
+            org.chequePrinter.service.PdfPrinter.printPdf(document, 16.6f, 7.5f);
 
             // Save records to the database with the correct date format
             for (ChequeData cheque : chequesToPrint) {
@@ -261,23 +261,6 @@ public class ChequeController {
         }
     }
 
-    
-
-    @FXML
-    private void deleteSelectedRecord() {
-        ChequeData selectedCheque = chequeTableView.getSelectionModel().getSelectedItem();
-        if (selectedCheque != null) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure you want to delete this record?", ButtonType.YES, ButtonType.NO);
-            alert.showAndWait().ifPresent(response -> {
-                if (response == ButtonType.YES) {
-                    DatabaseService.deleteCheque(selectedCheque.getId());
-                    loadChequeRecords();
-                }
-            });
-        } else {
-            showAlert("No Selection", "Please select a cheque to delete.");
-        }
-    }
 
     @FXML
     private void applyDateFilter() {
@@ -298,15 +281,6 @@ public class ChequeController {
         chequeTableView.setItems(filteredData);
     }
 
-    @FXML
-    private void clearFilters() {
-        filterBeneficiaryField.clear();
-        startDatePicker.setValue(null);
-        endDatePicker.setValue(null);
-        chequeTableView.setItems(chequeDataList);
-    }
-
-    
 
     private List<ChequeData> getChequeDataList(int numChecks) {
         List<ChequeData> chequeDataList = new ArrayList<>();

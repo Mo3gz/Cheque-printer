@@ -257,7 +257,7 @@ public class SimpleController implements Initializable {
             PDDocument document = generateChequePDF(chequeData);
             
             // Print the PDF
-            PdfPrinter.printPdf(document);
+            org.chequePrinter.service.PdfPrinter.printPdf(document, 16.6f, 7.5f);
             
             // Save to database
             DatabaseService.saveCheque(chequeData);
@@ -354,7 +354,7 @@ public class SimpleController implements Initializable {
                                                          allPagesContent, "Amiri-Regular.ttf", templateImagePath);
             
             // Print the PDF
-            PdfPrinter.printPdf(document);
+            org.chequePrinter.service.PdfPrinter.printPdf(document, 16.6f, 7.5f);
             
             loadChequeRecords();
             showAlert("Success", numChecks + " cheques printed and saved successfully!");
