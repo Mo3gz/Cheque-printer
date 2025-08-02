@@ -61,7 +61,17 @@ public class SimpleController implements Initializable {
     @FXML private DatePicker startDatePicker;
     @FXML private DatePicker endDatePicker;
 
+    // Multiple cheque editing table
+    @FXML private TableView<ChequeData> multiChequeTableView;
+    @FXML private TableColumn<ChequeData, String> multiDateColumn;
+    @FXML private TableColumn<ChequeData, String> multiBeneficiaryColumn;
+    @FXML private TableColumn<ChequeData, String> multiAmountColumn;
+    @FXML private TableColumn<ChequeData, String> multiAmountWordsColumn;
+    @FXML private TableColumn<ChequeData, String> multiSignerColumn;
+    @FXML private TableColumn<ChequeData, Void> multiActionColumn;
+
     private ObservableList<ChequeData> chequeDataList = FXCollections.observableArrayList();
+    private ObservableList<ChequeData> multiChequeDataList = FXCollections.observableArrayList();
     private java.util.List<BankTemplate> bankTemplates;
 
     @Override
@@ -69,6 +79,7 @@ public class SimpleController implements Initializable {
         loadBankConfiguration();
         setupUI();
         setupTableView();
+        setupMultiChequeTableView();
         setupEventHandlers();
         loadChequeRecords();
     }
@@ -156,6 +167,90 @@ public class SimpleController implements Initializable {
         // Enable multiple selection
         chequeTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         chequeTableView.setItems(chequeDataList);
+    }
+
+    private void setupMultiChequeTableView() {
+        // Setup cell value factories
+        multiDateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+        multiBeneficiaryColumn.setCellValueFactory(new PropertyValueFactory<>("beneficiaryName"));
+        multiAmountColumn.setCellValueFactory(new PropertyValueFactory<>("amountNumeric"));
+        multiAmountWordsColumn.setCellValueFactory(new PropertyValueFactory<>("amountWords"));
+        multiSignerColumn.setCellValueFactory(new PropertyValueFactory<>("signerName"));
+
+        // Make table editable
+        multiChequeTableView.setEditable(true);
+
+        // Setup editable date column
+        multiDateColumn.setCellFactory(javafx.scene.control.cell.TextFieldTableCell.forTableColumn());
+        multiDateColumn.setOnEditCommit(event -> {
+            ChequeData cheque = event.getRowValue();
+            cheque.setDate(event.getNewValue());
+            
+            // Update preview only if this is the currently selected row
+            ChequeData selectedCheque = multiChequeTableView.getSelectionModel().getSelectedItem();
+            if (selectedCheque != null && selectedCheque == cheque) {
+                updatePreviewFromTable(cheque);
+            }
+            
+            // Refresh the table to show the updated date
+            multiChequeTableView.refresh();
+        });
+
+        // Setup editable amount column
+        multiAmountColumn.setCellFactory(javafx.scene.control.cell.TextFieldTableCell.forTableColumn());
+        multiAmountColumn.setOnEditCommit(event -> {
+            ChequeData cheque = event.getRowValue();
+            String newAmount = event.getNewValue();
+            cheque.setAmountNumeric(newAmount);
+            
+            // Update amount in words for this specific cheque only
+            try {
+                double amount = Double.parseDouble(newAmount);
+                String words = ArabicNumberToWords.convert(amount);
+                cheque.setAmountWords(words);
+            } catch (NumberFormatException e) {
+                cheque.setAmountWords("");
+            }
+            
+            // Update preview only if this is the currently selected row
+            ChequeData selectedCheque = multiChequeTableView.getSelectionModel().getSelectedItem();
+            if (selectedCheque != null && selectedCheque == cheque) {
+                updatePreviewFromTable(cheque);
+            }
+            
+            // Refresh the table to show the updated amount and words
+            multiChequeTableView.refresh();
+        });
+
+        // Setup action column with print button
+        multiActionColumn.setCellFactory(param -> new TableCell<ChequeData, Void>() {
+            private final Button printBtn = new Button("Print");
+
+            {
+                printBtn.setOnAction(event -> {
+                    ChequeData cheque = getTableView().getItems().get(getIndex());
+                    printSingleChequeFromTable(cheque);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(printBtn);
+                }
+            }
+        });
+
+        // Set items and enable row selection
+        multiChequeTableView.setItems(multiChequeDataList);
+        multiChequeTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                updatePreviewFromTable(newSelection);
+            }
+        });
     }
 
     private void setupEventHandlers() {
@@ -627,6 +722,216 @@ public class SimpleController implements Initializable {
 
         System.out.println("Created " + contentList.size() + " PDF content items for printing");
         return contentList;
+    }
+
+    private void updatePreviewFromTable(ChequeData cheque) {
+        // Update the form fields with the selected cheque data
+        try {
+            firstCheckDatePicker.setValue(LocalDate.parse(cheque.getDate()));
+        } catch (Exception e) {
+            // Handle date parsing error
+            firstCheckDatePicker.setValue(LocalDate.now());
+        }
+        beneficiaryField.setText(cheque.getBeneficiaryName());
+        amountField.setText(cheque.getAmountNumeric());
+        amountWordsField.setText(cheque.getAmountWords());
+        signerField.setText(cheque.getSignerName());
+        
+        // This will trigger the preview update through the existing listeners
+        updatePreview();
+    }
+
+    private void printSingleChequeFromTable(ChequeData cheque) {
+        try {
+            BankTemplate.Template selectedTemplate = templateComboBox.getValue();
+            if (selectedTemplate == null) {
+                showAlert("Error", "Please select a valid bank template before printing.");
+                return;
+            }
+
+            float widthInCm = selectedTemplate.getWidth();
+            float heightInCm = selectedTemplate.getHeight();
+
+            // Generate PDF and print
+            PDDocument document = generateChequePDFFromData(cheque);
+
+            // Print the PDF
+            org.chequePrinter.service.PdfPrinter.printPdf(document, widthInCm, heightInCm);
+            
+            showAlert("Success", "Cheque printed successfully!");
+            
+        } catch (Exception e) {
+            showAlert("Error", "Failed to print cheque: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private PDDocument generateChequePDFFromData(ChequeData chequeData) throws Exception {
+        java.util.List<PdfContent> contentList = createPdfContentForCheque(chequeData);
+        java.util.List<java.util.List<PdfContent>> allPagesContent = new java.util.ArrayList<>();
+        allPagesContent.add(contentList);
+
+        // --- CONVERSION ---
+        // 1 inch = 72 points. 1 inch = 2.54 cm.
+        // Points per cm = 72 / 2.54 = 28.346
+        final float POINTS_PER_CM = 72f / 2.54f;
+
+        // Get selected template for dimensions and background image
+        BankTemplate.Template selectedTemplate = templateComboBox.getValue();
+        float pageWidthInPoints, pageHeightInPoints;
+        String templateImagePath = null;
+        
+        if (selectedTemplate != null) {
+            // --- DESIRED DIMENSIONS (from bank.json in cm) ---
+            float widthInCm = selectedTemplate.getWidth();
+            float heightInCm = selectedTemplate.getHeight();
+            
+            // --- CALCULATED DIMENSIONS IN POINTS ---
+            pageWidthInPoints = widthInCm * POINTS_PER_CM;
+            pageHeightInPoints = heightInCm * POINTS_PER_CM;
+            
+            templateImagePath = selectedTemplate.getImagePath();
+        } else {
+            // Fallback to default dimensions
+            float widthInCm = 16.7f;
+            float heightInCm = 8.1f;
+            pageWidthInPoints = widthInCm * POINTS_PER_CM;
+            pageHeightInPoints = heightInCm * POINTS_PER_CM;
+        }
+
+        return PdfGenerator.generatePdf(pageWidthInPoints, pageHeightInPoints,
+                                      allPagesContent, "Amiri-Regular.ttf", templateImagePath);
+    }
+
+    @FXML
+    private void generateMultipleChecks() {
+        if (!validateInput()) return;
+
+        try {
+            int numChecks = Integer.parseInt(numChecksField.getText());
+            String interval = intervalComboBox.getValue();
+            
+            LocalDate currentDate = firstCheckDatePicker.getValue();
+            multiChequeDataList.clear();
+            
+            for (int i = 0; i < numChecks; i++) {
+                ChequeData chequeData = new ChequeData();
+                chequeData.setDate(currentDate.toString());
+                chequeData.setBeneficiaryName(beneficiaryField.getText());
+                chequeData.setAmountNumeric(amountField.getText());
+                chequeData.setAmountWords(amountWordsField.getText());
+                chequeData.setSignerName(signerField.getText());
+                
+                multiChequeDataList.add(chequeData);
+                
+                // Calculate next date based on month interval
+                if (interval != null && interval.contains("Month")) {
+                    String monthsStr = interval.split(" ")[0];
+                    try {
+                        int months = Integer.parseInt(monthsStr);
+                        currentDate = currentDate.plusMonths(months);
+                    } catch (NumberFormatException e) {
+                        // Default to 1 month if parsing fails
+                        currentDate = currentDate.plusMonths(1);
+                    }
+                } else {
+                    // Default to 1 month
+                    currentDate = currentDate.plusMonths(1);
+                }
+            }
+            
+            showAlert("Success", numChecks + " cheques generated in the table below. You can edit amounts and dates as needed.");
+            
+        } catch (NumberFormatException e) {
+            showAlert("Error", "Please enter a valid number of checks.");
+        } catch (Exception e) {
+            showAlert("Error", "Failed to generate cheques: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void clearMultiChequeTable() {
+        multiChequeDataList.clear();
+    }
+
+    @FXML
+    private void printAllCheques() {
+        if (multiChequeDataList.isEmpty()) {
+            showAlert("No Cheques", "Please generate cheques first before printing.");
+            return;
+        }
+
+        try {
+            // Use the same logic as printAndSaveMultipleChecks but with cheques from table
+            java.util.List<java.util.List<PdfContent>> allPagesContent = new java.util.ArrayList<>();
+            
+            // Create PDF content for each cheque from the table
+            for (ChequeData chequeData : multiChequeDataList) {
+                java.util.List<PdfContent> pageContent = createPdfContentForCheque(chequeData);
+                allPagesContent.add(pageContent);
+            }
+            
+            // --- CONVERSION ---
+            // 1 inch = 72 points. 1 inch = 2.54 cm.
+            // Points per cm = 72 / 2.54 = 28.346
+            final float POINTS_PER_CM = 72f / 2.54f;
+
+            // Get selected template for dimensions and background image
+            BankTemplate.Template selectedTemplate = templateComboBox.getValue();
+            float pageWidthInPoints, pageHeightInPoints;
+            String templateImagePath = null;
+            
+            if (selectedTemplate != null) {
+                // --- DESIRED DIMENSIONS (from bank.json in cm) ---
+                float widthInCm = selectedTemplate.getWidth();
+                float heightInCm = selectedTemplate.getHeight();
+                
+                // --- CALCULATED DIMENSIONS IN POINTS ---
+                pageWidthInPoints = widthInCm * POINTS_PER_CM;
+                pageHeightInPoints = heightInCm * POINTS_PER_CM;
+                
+                templateImagePath = selectedTemplate.getImagePath();
+                System.out.println("=== MULTIPLE CHEQUES FROM TABLE DIMENSIONS DEBUG ===");
+                System.out.println("Template: " + selectedTemplate.getTemplateName());
+                System.out.println("Width from bank.json: " + widthInCm + " cm");
+                System.out.println("Height from bank.json: " + heightInCm + " cm");
+                System.out.println("POINTS_PER_CM: " + POINTS_PER_CM);
+                System.out.println("Calculated width in points: " + pageWidthInPoints);
+                System.out.println("Calculated height in points: " + pageHeightInPoints);
+                System.out.println("Template image: " + templateImagePath);
+                System.out.println("Number of cheques from table: " + multiChequeDataList.size());
+                System.out.println("=========================================");
+            } else {
+                // Fallback to default dimensions
+                float widthInCm = 16.7f;
+                float heightInCm = 8.1f;
+                pageWidthInPoints = widthInCm * POINTS_PER_CM;
+                pageHeightInPoints = heightInCm * POINTS_PER_CM;
+                System.out.println("Using default dimensions for multiple cheques from table: " + widthInCm + "cm x " + heightInCm + "cm");
+                System.out.println("Converted to points: " + pageWidthInPoints + " x " + pageHeightInPoints);
+                System.out.println("Number of cheques from table: " + multiChequeDataList.size());
+            }
+            
+            // Generate PDF document using the same method as printAndSaveMultipleChecks
+            PDDocument document = PdfGenerator.generatePdf(pageWidthInPoints, pageHeightInPoints,
+                                                         allPagesContent, "Amiri-Regular.ttf", templateImagePath);
+            
+            // Print the PDF
+            org.chequePrinter.service.PdfPrinter.printPdf(document, selectedTemplate.getWidth(), selectedTemplate.getHeight());
+            
+            // Save all cheques from table to database
+            for (ChequeData cheque : multiChequeDataList) {
+                DatabaseService.saveCheque(cheque);
+            }
+            
+            loadChequeRecords();
+            showAlert("Success", multiChequeDataList.size() + " cheques from table printed and saved successfully!");
+            
+        } catch (Exception e) {
+            showAlert("Error", "Failed to print cheques from table: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void showAlert(String title, String message) {

@@ -47,6 +47,23 @@
         }
       }
     ]
+  },{
+    "name": "Bank Misr",
+    "templates": [
+      {
+        "templateName": "Bank Misr Standard",
+        "imagePath": "/templates/qnb_template.jpg",
+        "width": 16.7,
+        "height": 8.1,
+        "fields": {
+          "dateField": { "x": 326, "y": 176, "fontSize": 14, "alignment": 1, "width": 120 },
+          "beneficiaryField": { "x": 176, "y": 144, "fontSize": 14, "alignment": 1, "width": 150 },
+          "amountWordsField": { "x": 83, "y": 112, "fontSize": 14, "alignment": 1, "width": 300 },
+          "amountField": { "x": 380, "y": 105, "fontSize": 14, "alignment": 1, "width": 88 },
+          "signerField": { "x": 350, "y": 75, "fontSize": 14, "alignment": 1, "width": 88 }
+        }
+      }
+    ]
   },
   {
     "name": "البنك التجاري الدولي (CIB)",
