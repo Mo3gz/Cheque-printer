@@ -29,19 +29,14 @@ public class PdfPrinter {
 
         // Configure paper
         Paper paper = new Paper();
-        paper.setSize(widthPoints, heightPoints);
-        paper.setImageableArea(0, 0, widthPoints, heightPoints); // No margins
+        paper.setSize(heightPoints, widthPoints);
+        paper.setImageableArea(0, 0, heightPoints , widthPoints); // No margins
 
-        // Configure page format
+        // Configure page format - Force PORTRAIT orientation as requested
         PageFormat pageFormat = new PageFormat();
         pageFormat.setPaper(paper);
-        if (widthPoints > heightPoints) {
-            pageFormat.setOrientation(PageFormat.LANDSCAPE);
-            System.out.println("Orientation: LANDSCAPE");
-        } else {
-            pageFormat.setOrientation(PageFormat.PORTRAIT);
-            System.out.println("Orientation: PORTRAIT");
-        }
+        pageFormat.setOrientation(PageFormat.PORTRAIT);
+        System.out.println("Orientation: PORTRAIT (forced as requested)");
 
         // Prepare the printer job
         PrinterJob job = PrinterJob.getPrinterJob();

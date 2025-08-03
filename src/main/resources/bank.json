@@ -16,7 +16,7 @@
         }
       },
       {
-        "templateName": "NBE Premium",
+        "templateName": "NBE Premium DEMO!!!",
         "imagePath": "/templates/nbe_template_2.jpg",
         "width": 24.7,
         "height": 15.1,
@@ -31,24 +31,7 @@
     ]
   },
   {
-    "name": "بنك قطر الوطني (QNB)",
-    "templates": [
-      {
-        "templateName": "QNB Standard",
-        "imagePath": "/templates/qnb_template.jpg",
-        "width": 16.7,
-        "height": 8.1,
-        "fields": {
-          "dateField": { "x": 326, "y": 176, "fontSize": 14, "alignment": 1, "width": 120 },
-          "beneficiaryField": { "x": 176, "y": 144, "fontSize": 14, "alignment": 1, "width": 150 },
-          "amountWordsField": { "x": 83, "y": 112, "fontSize": 14, "alignment": 1, "width": 300 },
-          "amountField": { "x": 380, "y": 105, "fontSize": 14, "alignment": 1, "width": 88 },
-          "signerField": { "x": 350, "y": 75, "fontSize": 14, "alignment": 1, "width": 88 }
-        }
-      }
-    ]
-  },{
-    "name": "Bank Misr",
+    "name": "بنك مصر",
     "templates": [
       {
         "templateName": "Bank Misr Standard",
@@ -66,19 +49,90 @@
     ]
   },
   {
-    "name": "البنك التجاري الدولي (CIB)",
+    "name": "بنك قطر الوطني (QNB)",
+    "templates": [
+      {
+        "templateName": "QNB Standard",
+        "imagePath": "/templates/qnb_template.jpg",
+        "width": 16.6,
+        "height": 7.5,
+        "fields": {
+          "dateField": { "x": 326, "y": 176, "fontSize": 14, "alignment": 1, "width": 120 },
+          "beneficiaryField": { "x": 176, "y": 144, "fontSize": 14, "alignment": 1, "width": 150 },
+          "amountWordsField": { "x": 83, "y": 112, "fontSize": 14, "alignment": 1, "width": 300 },
+          "amountField": { "x": 380, "y": 105, "fontSize": 14, "alignment": 1, "width": 88 }
+        }
+      }
+    ]
+  },
+  {
+    "name": "مصرف أبو ظبي الإسلامي (ADIB)",
+    "templates": [
+      {
+        "templateName": "ADIB Standard",
+        "imagePath": "/templates/adib_template.jpg",
+        "width": 17.5,
+        "height": 8.2,
+        "fields": {
+          "dateField": { "x": 375, "y": 205, "fontSize": 14, "alignment": 1, "width": 120 },
+          "beneficiaryField": { "x": 270, "y": 170, "fontSize": 14, "alignment": 1, "width": 150 },
+          "amountWordsField": { "x": 130, "y": 140, "fontSize": 14, "alignment": 1, "width": 300 },
+          "amountField": { "x": 400, "y": 120, "fontSize": 14, "alignment": 1, "width": 88 },
+          "signerField": { "x": 350, "y": 100, "fontSize": 14, "alignment": 1, "width": 88 }
+        }
+      }
+    ]
+  },
+  {
+    "name": "بنك القاهرة",
+    "templates": [
+      {
+        "templateName": "Kahera Standard",
+        "imagePath": "/templates/kahera_template.jpg",
+        "width": 17.6,
+        "height": 8.2,
+        "fields": {
+          "dateField": { "x": 385, "y": 205, "fontSize": 14, "alignment": 1, "width": 120 },
+          "beneficiaryField": { "x": 220, "y": 165, "fontSize": 14, "alignment": 1, "width": 150 },
+          "amountWordsField": { "x": 120, "y": 145, "fontSize": 14, "alignment": 1, "width": 300 },
+          "amountField": { "x": 400, "y": 120, "fontSize": 14, "alignment": 1, "width": 88 },
+          "signerField": { "x": 360, "y": 100, "fontSize": 14, "alignment": 1, "width": 88 }
+        }
+      }
+    ]
+  },
+  {
+    "name": "بنك CIB",
     "templates": [
       {
         "templateName": "CIB Standard",
         "imagePath": "/templates/cib_template.jpg",
-        "width": 16.7,
-        "height": 8.1,
+        "width": 17.6,
+        "height": 8.2,
         "fields": {
-          "dateField": { "x": 360, "y": 190, "fontSize": 14, "alignment": 1, "width": 120 },
-          "beneficiaryField": { "x": 170, "y": 155, "fontSize": 14, "alignment": 1, "width": 150 },
-          "amountWordsField": { "x": 130, "y": 125, "fontSize": 14, "alignment": 1, "width": 300 },
-          "amountField": { "x": 385, "y": 110, "fontSize": 14, "alignment": 1, "width": 88 },
-          "signerField": { "x": 340, "y": 80, "fontSize": 14, "alignment": 1, "width": 88 }
+          "dateField": { "x": 385, "y": 205, "fontSize": 14, "alignment": 1, "width": 120 },
+          "beneficiaryField": { "x": 220, "y": 165, "fontSize": 14, "alignment": 1, "width": 150 },
+          "amountWordsField": { "x": 120, "y": 145, "fontSize": 14, "alignment": 1, "width": 300 },
+          "amountField": { "x": 400, "y": 120, "fontSize": 14, "alignment": 1, "width": 88 },
+          "signerField": { "x": 360, "y": 100, "fontSize": 14, "alignment": 1, "width": 88 }
+        }
+      }
+    ]
+  },
+  {
+    "name": "بنك HSBC",
+    "templates": [
+      {
+        "templateName": "HSBC Standard",
+        "imagePath": "/templates/hsbc_template.jpg",
+        "width": 17.7,
+        "height": 8.2,
+        "fields": {
+          "dateField": { "x": 385, "y": 205, "fontSize": 14, "alignment": 1, "width": 120 },
+          "beneficiaryField": { "x": 190, "y": 165, "fontSize": 14, "alignment": 1, "width": 150 },
+          "amountWordsField": { "x": 80, "y": 140, "fontSize": 14, "alignment": 1, "width": 300 },
+          "amountField": { "x": 410, "y": 130, "fontSize": 14, "alignment": 1, "width": 88 },
+          "signerField": { "x": 350, "y": 105, "fontSize": 14, "alignment": 1, "width": 88 }
         }
       }
     ]

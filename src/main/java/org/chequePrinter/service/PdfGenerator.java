@@ -161,9 +161,9 @@ public class PdfGenerator {
             throw new IOException("Error generating PDF: " + e.getMessage(), e);
         }
         
-        // Rotate all pages to the left
+        // Apply -90 degree rotation as requested (portrait with -90 rotation)
         for (PDPage page : document.getPages()) {
-            page.setRotation(90); // 90 degrees counter-clockwise
+            page.setRotation(-90); // -90 degrees clockwise rotation as requested
         }
 
         // Final debug: Check document dimensions before returning
