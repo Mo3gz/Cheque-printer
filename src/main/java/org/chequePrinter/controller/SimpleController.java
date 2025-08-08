@@ -287,7 +287,26 @@ public class SimpleController implements Initializable {
     private void updatePreview() {
         // Update preview text elements
         if (firstCheckDatePicker.getValue() != null) {
-            dateText.setText(firstCheckDatePicker.getValue().toString());
+            // Format date according to template's dateFormat
+            BankTemplate.Template selectedTemplate = templateComboBox.getValue();
+            String formattedDate = firstCheckDatePicker.getValue().toString();
+            if (selectedTemplate != null && selectedTemplate.getDateFormat() != null) {
+                LocalDate date = firstCheckDatePicker.getValue();
+                switch (selectedTemplate.getDateFormat()) {
+                    case "YYYY/MM/DD":
+                        formattedDate = String.format("%04d/%02d/%02d", date.getYear(), date.getMonthValue(), date.getDayOfMonth());
+                        break;
+                    case "DD MM YYYY":
+                        formattedDate = String.format("%02d %02d %04d", date.getDayOfMonth(), date.getMonthValue(), date.getYear());
+                        break;
+                    case "DD/MM/YYYY":
+                        formattedDate = String.format("%02d/%02d/%04d", date.getDayOfMonth(), date.getMonthValue(), date.getYear());
+                        break;
+                    default:
+                        break;
+                }
+            }
+            dateText.setText(formattedDate);
         }
         beneficiaryText.setText(beneficiaryField.getText());
         amountWordsText.setText(amountWordsField.getText());
@@ -666,8 +685,39 @@ public class SimpleController implements Initializable {
             
             BankTemplate.Field datePos = selectedTemplate.getFields().get("dateField");
             if (datePos != null) {
+                // Format date according to template's dateFormat
                 String dateText = chequeData.getDate();
-                contentList.add(new PdfContent(dateText, datePos.getFontSize(), datePos.getAlignment(),
+                String formattedDate = dateText;
+                String templateDateFormat = selectedTemplate.getDateFormat();
+                try {
+                    LocalDate parsedDate = null;
+                    // Try parsing with common formats
+                    if (dateText.matches("\\d{4}[-/]\\d{2}[-/]\\d{2}")) {
+                        parsedDate = LocalDate.parse(dateText.replace('/', '-'));
+                    } else if (dateText.matches("\\d{2}[-/]\\d{2}[-/]\\d{4}")) {
+                        String[] parts = dateText.split("[-/]");
+                        parsedDate = LocalDate.of(Integer.parseInt(parts[2]), Integer.parseInt(parts[1]), Integer.parseInt(parts[0]));
+                    }
+                    if (parsedDate != null && templateDateFormat != null) {
+                        switch (templateDateFormat) {
+                            case "YYYY/MM/DD":
+                                formattedDate = String.format("%04d/%02d/%02d", parsedDate.getYear(), parsedDate.getMonthValue(), parsedDate.getDayOfMonth());
+                                break;
+                            case "DD MM YYYY":
+                                formattedDate = String.format("%02d %02d %04d", parsedDate.getDayOfMonth(), parsedDate.getMonthValue(), parsedDate.getYear());
+                                break;
+                            case "DD/MM/YYYY":
+                                formattedDate = String.format("%02d/%02d/%04d", parsedDate.getDayOfMonth(), parsedDate.getMonthValue(), parsedDate.getYear());
+                                break;
+                            default:
+                                // fallback to raw
+                                break;
+                        }
+                    }
+                } catch (Exception e) {
+                    // fallback to raw dateText
+                }
+                contentList.add(new PdfContent(formattedDate, datePos.getFontSize(), datePos.getAlignment(),
                     datePos.getX(), datePos.getY(), datePos.getWidth(), 23f));
                 System.out.println("Date field: '" + dateText + "' (length: " + dateText.length() + ") at (" + datePos.getX() + ", " + datePos.getY() + ")");
             }
@@ -717,6 +767,22 @@ public class SimpleController implements Initializable {
                     System.out.print("U+" + Integer.toHexString(signerText.charAt(i)).toUpperCase() + " ");
                 }
                 System.out.println();
+            }
+        }
+
+        // Add fixed text field if present (for printing/PDF only)
+        if (selectedTemplate != null && selectedTemplate.getFixedTextField() != null) {
+            BankTemplate.FixedTextField fixedText = selectedTemplate.getFixedTextField();
+            if (fixedText.getText() != null && !fixedText.getText().trim().isEmpty()) {
+                contentList.add(new PdfContent(
+                    fixedText.getText(),
+                    fixedText.getFontSize(),
+                    fixedText.getAlignment(),
+                    fixedText.getX(),
+                    fixedText.getY(),
+                    fixedText.getWidth(),
+                    0));
+                System.out.println("Fixed text field: '" + fixedText.getText() + "' at (" + fixedText.getX() + ", " + fixedText.getY() + ")");
             }
         }
 

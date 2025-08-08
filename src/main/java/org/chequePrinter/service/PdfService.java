@@ -23,6 +23,18 @@ public class PdfService {
             pageContent.add(new PdfContent(chequeData.getAmountWords(), template.getFields().get("amountWordsField").getFontSize(), Element.ALIGN_CENTER, template.getFields().get("amountWordsField").getX(), template.getFields().get("amountWordsField").getY(), template.getFields().get("amountWordsField").getWidth(), 0));
             pageContent.add(new PdfContent(chequeData.getAmountNumeric(), template.getFields().get("amountField").getFontSize(), Element.ALIGN_CENTER, template.getFields().get("amountField").getX(), template.getFields().get("amountField").getY(), template.getFields().get("amountField").getWidth(), 0));
             pageContent.add(new PdfContent(chequeData.getSignerName(), template.getFields().get("signerField").getFontSize(), Element.ALIGN_CENTER, template.getFields().get("signerField").getX(), template.getFields().get("signerField").getY(), template.getFields().get("signerField").getWidth(), 0));
+            // Add fixed text field if present
+            BankTemplate.FixedTextField fixedText = template.getFixedTextField();
+            if (fixedText != null && fixedText.getText() != null && !fixedText.getText().trim().isEmpty()) {
+                pageContent.add(new PdfContent(
+                    fixedText.getText(),
+                    fixedText.getFontSize(),
+                    fixedText.getAlignment(),
+                    fixedText.getX(),
+                    fixedText.getY(),
+                    fixedText.getWidth(),
+                    0));
+            }
             allPagesContent.add(pageContent);
         }
 

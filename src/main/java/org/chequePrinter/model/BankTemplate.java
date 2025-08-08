@@ -26,6 +26,8 @@ public class BankTemplate {
         private float width;
         private float height;
         private Map<String, Field> fields;
+        private String dateFormat;
+        private FixedTextField fixedTextField;
 
         public String getTemplateName() {
             return templateName;
@@ -47,6 +49,14 @@ public class BankTemplate {
             return fields;
         }
         
+        public String getDateFormat() {
+            return dateFormat;
+        }
+
+        public FixedTextField getFixedTextField() {
+            return fixedTextField;
+        }
+
         @Override
         public String toString() {
             return templateName;
@@ -78,6 +88,34 @@ public class BankTemplate {
 
         public int getWidth() {
             return width;
+        }
+    }
+
+    public static class FixedTextField {
+        private String text;
+        private int x;
+        private int y;
+        private int width;
+        private int fontSize;
+        private int alignment;
+
+        public String getText() {
+            return text;
+        }
+        public int getX() {
+            return x;
+        }
+        public int getY() {
+            return y;
+        }
+        public int getWidth() {
+            return width;
+        }
+        public int getFontSize() {
+            return fontSize;
+        }
+        public int getAlignment() {
+            return alignment;
         }
     }
 }
