@@ -1,48 +1,16 @@
 package org.chequePrinter.controller;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
-import javafx.scene.text.Text;
+import javafx.scene.control.Alert;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.chequePrinter.model.BankTemplate;
 import org.chequePrinter.model.ChequeData;
 
 import java.util.List;
 
-public class ChequeController {
+public class ChequeControllerRefactored {
 
-    // FXML UI Components
-    @FXML private Pane previewPane;
-    @FXML private ImageView chequeImageView;
-    @FXML private Text dateText;
-    @FXML private Text beneficiaryText;
-    @FXML private Text amountWordsText;
-    @FXML private Text amountText;
-    @FXML private Text signerText;
-
-    @FXML private DatePicker firstCheckDatePicker;
-    @FXML private TextField beneficiaryField;
-    @FXML private TextField amountField;
-    @FXML private TextField amountWordsField;
-    @FXML private TextField signerField;
-    @FXML private TextField numChecksField;
-    @FXML private ComboBox<String> intervalComboBox;
-
-    @FXML private TableView<ChequeData> chequeTableView;
-    @FXML private TableColumn<ChequeData, Integer> idColumn;
-    @FXML private TableColumn<ChequeData, String> dateColumn;
-    @FXML private TableColumn<ChequeData, String> beneficiaryColumn;
-    @FXML private TableColumn<ChequeData, String> amountNumericColumn;
-    @FXML private TableColumn<ChequeData, String> amountWordsColumn;
-    @FXML private TableColumn<ChequeData, String> signerColumn;
-
-    @FXML private TextField filterBeneficiaryField;
-    @FXML private DatePicker startDatePicker;
-    @FXML private DatePicker endDatePicker;
-
-    // Refactored sub-controllers
+    // Injected sub-controllers
     private ChequeFormController formController;
     private ChequePreviewController previewController;
     private ChequePrintController printController;
@@ -52,71 +20,21 @@ public class ChequeController {
     @FXML
     public void initialize() {
         // Initialize sub-controllers
-        initializeSubControllers();
-        setupControllerDependencies();
-        setupEventHandlers();
-    }
-
-    private void initializeSubControllers() {
-        // Create and initialize sub-controllers
         formController = new ChequeFormController();
         previewController = new ChequePreviewController();
         printController = new ChequePrintController();
         dataController = new ChequeDataController();
         filterController = new ChequeFilterController();
 
-        // Inject FXML components into sub-controllers
-        injectFXMLComponents();
-
         // Initialize all sub-controllers
         formController.initialize();
         previewController.initialize();
         dataController.initialize();
         filterController.initialize();
-    }
 
-    private void injectFXMLComponents() {
-        // Inject form components
-        setPrivateField(formController, "firstCheckDatePicker", firstCheckDatePicker);
-        setPrivateField(formController, "beneficiaryField", beneficiaryField);
-        setPrivateField(formController, "amountField", amountField);
-        setPrivateField(formController, "amountWordsField", amountWordsField);
-        setPrivateField(formController, "signerField", signerField);
-        setPrivateField(formController, "numChecksField", numChecksField);
-        setPrivateField(formController, "intervalComboBox", intervalComboBox);
-
-        // Inject preview components
-        setPrivateField(previewController, "previewPane", previewPane);
-        setPrivateField(previewController, "chequeImageView", chequeImageView);
-        setPrivateField(previewController, "dateText", dateText);
-        setPrivateField(previewController, "beneficiaryText", beneficiaryText);
-        setPrivateField(previewController, "amountWordsText", amountWordsText);
-        setPrivateField(previewController, "amountText", amountText);
-        setPrivateField(previewController, "signerText", signerText);
-
-        // Inject data components
-        setPrivateField(dataController, "chequeTableView", chequeTableView);
-        setPrivateField(dataController, "idColumn", idColumn);
-        setPrivateField(dataController, "dateColumn", dateColumn);
-        setPrivateField(dataController, "beneficiaryColumn", beneficiaryColumn);
-        setPrivateField(dataController, "amountNumericColumn", amountNumericColumn);
-        setPrivateField(dataController, "amountWordsColumn", amountWordsColumn);
-        setPrivateField(dataController, "signerColumn", signerColumn);
-
-        // Inject filter components
-        setPrivateField(filterController, "filterBeneficiaryField", filterBeneficiaryField);
-        setPrivateField(filterController, "startDatePicker", startDatePicker);
-        setPrivateField(filterController, "endDatePicker", endDatePicker);
-    }
-
-    private void setPrivateField(Object target, String fieldName, Object value) {
-        try {
-            java.lang.reflect.Field field = target.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(target, value);
-        } catch (Exception e) {
-            System.err.println("Failed to inject field " + fieldName + ": " + e.getMessage());
-        }
+        // Set up dependencies between controllers
+        setupControllerDependencies();
+        setupEventHandlers();
     }
 
     private void setupControllerDependencies() {
@@ -227,6 +145,11 @@ public class ChequeController {
         filterController.applyDateFilter();
     }
 
+    @FXML
+    private void deleteSelectedRecord() {
+        dataController.deleteSelectedRecord();
+    }
+
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
@@ -235,10 +158,17 @@ public class ChequeController {
         alert.showAndWait();
     }
 
-    // Getters for sub-controllers (for testing or external access)
+    // Getters for sub-controllers (for FXML injection or manual setup)
     public ChequeFormController getFormController() { return formController; }
     public ChequePreviewController getPreviewController() { return previewController; }
     public ChequePrintController getPrintController() { return printController; }
     public ChequeDataController getDataController() { return dataController; }
     public ChequeFilterController getFilterController() { return filterController; }
+
+    // Setters for dependency injection
+    public void setFormController(ChequeFormController formController) { this.formController = formController; }
+    public void setPreviewController(ChequePreviewController previewController) { this.previewController = previewController; }
+    public void setPrintController(ChequePrintController printController) { this.printController = printController; }
+    public void setDataController(ChequeDataController dataController) { this.dataController = dataController; }
+    public void setFilterController(ChequeFilterController filterController) { this.filterController = filterController; }
 }
