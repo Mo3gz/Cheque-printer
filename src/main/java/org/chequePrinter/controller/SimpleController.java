@@ -26,8 +26,16 @@ import com.lowagie.text.Element;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.ResourceBundle;
+
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 public class SimpleController implements Initializable {
 
@@ -82,6 +90,10 @@ public class SimpleController implements Initializable {
         setupMultiChequeTableView();
         setupEventHandlers();
         loadChequeRecords();
+
+        // Make chequeImageView responsive
+        chequeImageView.fitWidthProperty().bind(previewPane.widthProperty());
+        chequeImageView.fitHeightProperty().bind(previewPane.heightProperty());
     }
 
     private void loadBankConfiguration() {
@@ -254,14 +266,10 @@ public class SimpleController implements Initializable {
     }
 
     private void setupEventHandlers() {
-        // Update preview when fields change
-        beneficiaryField.textProperty().addListener((obs, oldVal, newVal) -> updatePreview());
+        // Only update amount words when amount changes, without triggering preview
         amountField.textProperty().addListener((obs, oldVal, newVal) -> {
             updateAmountWords();
-            updatePreview();
         });
-        signerField.textProperty().addListener((obs, oldVal, newVal) -> updatePreview());
-        firstCheckDatePicker.valueProperty().addListener((obs, oldVal, newVal) -> updatePreview());
         
         // Setup filtering listeners
         filterBeneficiaryField.textProperty().addListener((obs, oldVal, newVal) -> applyDateFilter());
@@ -519,54 +527,46 @@ public class SimpleController implements Initializable {
 
     @FXML
     private void applyDateFilter() {
-        FilteredList<ChequeData> filteredData = new FilteredList<>(FXCollections.observableArrayList(DatabaseService.getAllCheques()), p -> true);
+        // Get the current filter values
+        String beneficiaryFilter = filterBeneficiaryField.getText();
+        LocalDate startDate = startDatePicker.getValue();
+        LocalDate endDate = endDatePicker.getValue();
 
+        // Create a filtered list based on the original data
+        FilteredList<ChequeData> filteredData = new FilteredList<>(chequeDataList);
+
+        // Apply filters
         filteredData.setPredicate(cheque -> {
-            // Date filtering
-            boolean dateFilter = true;
-            if (startDatePicker.getValue() != null || endDatePicker.getValue() != null) {
-                try {
-                    LocalDate chequeDate = LocalDate.parse(cheque.getDate());
-                    LocalDate startDate = startDatePicker.getValue();
-                    LocalDate endDate = endDatePicker.getValue();
-                    
-                    // Check start date condition
-                    if (startDate != null && chequeDate.isBefore(startDate)) {
-                        dateFilter = false;
-                    }
-                    
-                    // Check end date condition
-                    if (endDate != null && chequeDate.isAfter(endDate)) {
-                        dateFilter = false;
-                    }
-                } catch (Exception e) {
-                    // If date parsing fails, exclude this record
-                    dateFilter = false;
+            // Filter by beneficiary name if provided
+            if (beneficiaryFilter != null && !beneficiaryFilter.isEmpty()) {
+                if (!cheque.getSignerName().toLowerCase().contains(beneficiaryFilter.toLowerCase())) {
+                    return false;
                 }
             }
 
-            // Signer name filtering
-            boolean signerFilter = true;
-            String filterText = filterBeneficiaryField.getText();
-            if (filterText != null && !filterText.trim().isEmpty()) {
-                String signerName = cheque.getSignerName();
-                if (signerName == null || !signerName.toLowerCase().contains(filterText.toLowerCase().trim())) {
-                    signerFilter = false;
+            // Filter by date range if provided
+            if (startDate != null || endDate != null) {
+                LocalDate chequeDate = LocalDate.parse(cheque.getDate());
+                if (startDate != null && chequeDate.isBefore(startDate)) {
+                    return false;
+                }
+                if (endDate != null && chequeDate.isAfter(endDate)) {
+                    return false;
                 }
             }
 
-            return dateFilter && signerFilter;
+            return true;
         });
 
+        // Apply the filtered list to the table
         chequeTableView.setItems(filteredData);
     }
 
     @FXML
-    private void clearFilters() {
+    public void clearFilters() {
         filterBeneficiaryField.clear();
         startDatePicker.setValue(null);
         endDatePicker.setValue(null);
-        // Reset to show all records
         chequeTableView.setItems(chequeDataList);
     }
 
@@ -581,27 +581,55 @@ public class SimpleController implements Initializable {
     }
 
     private boolean validateInput() {
-        if (beneficiaryField.getText().trim().isEmpty()) {
-            showAlert("Validation Error", "Please enter beneficiary name.");
-            return false;
-        }
-        if (amountField.getText().trim().isEmpty()) {
-            showAlert("Validation Error", "Please enter amount.");
-            return false;
-        }
-        if (signerField.getText().trim().isEmpty()) {
-            showAlert("Validation Error", "Please enter signer name.");
-            return false;
-        }
+        // Validate date
         if (firstCheckDatePicker.getValue() == null) {
-            showAlert("Validation Error", "Please select a date.");
+            showAlert("Validation Error", "Please select a valid date.");
             return false;
         }
         
+        // Validate beneficiary name (Arabic or English only, no numbers or special characters)
+        String beneficiary = beneficiaryField.getText().trim();
+        if (beneficiary.isEmpty()) {
+            showAlert("Validation Error", "Please enter beneficiary name.");
+            return false;
+        }
+        
+        // Regular expression for Arabic and English letters only (with spaces)
+        String nameRegex = "^[\\u0600-\\u06FF\\u0750-\\u077F\\sA-Za-z]+";
+        if (!beneficiary.matches(nameRegex)) {
+            showAlert("Validation Error", "Beneficiary name can only contain Arabic or English letters and spaces.");
+            return false;
+        }
+        
+        // Validate amount is a positive whole number
         try {
-            Double.parseDouble(amountField.getText());
+            String amountStr = amountField.getText().trim();
+            double amount = Double.parseDouble(amountStr);
+            
+            if (amount <= 0) {
+                showAlert("Validation Error", "Amount must be a positive number.");
+                return false;
+            }
+            
+            // Check if the input has a decimal point and non-zero decimal part
+            if (amountStr.contains(".") && !amountStr.endsWith(".0") && !amountStr.endsWith(".00")) {
+                showAlert("Validation Error", "Amount must be a whole number (e.g., 5 or 5.0).");
+                return false;
+            }
         } catch (NumberFormatException e) {
-            showAlert("Validation Error", "Please enter a valid amount.");
+            showAlert("Validation Error", "Please enter a valid numeric amount.");
+            return false;
+        }
+        
+        // Validate signer's name (Arabic or English only, no numbers or special characters)
+        String signerName = signerField.getText().trim();
+        if (signerName.isEmpty()) {
+            showAlert("Validation Error", "Please enter signer's name.");
+            return false;
+        }
+        
+        if (!signerName.matches(nameRegex)) {
+            showAlert("Validation Error", "Signer's name can only contain Arabic or English letters and spaces.");
             return false;
         }
         
@@ -615,6 +643,8 @@ public class SimpleController implements Initializable {
         if ((filterBeneficiaryField.getText() != null && !filterBeneficiaryField.getText().trim().isEmpty()) ||
             startDatePicker.getValue() != null || endDatePicker.getValue() != null) {
             applyDateFilter();
+        } else {
+            chequeTableView.setItems(chequeDataList);
         }
     }
 
@@ -924,79 +954,115 @@ public class SimpleController implements Initializable {
     @FXML
     private void printAllCheques() {
         if (multiChequeDataList.isEmpty()) {
-            showAlert("No Cheques", "Please generate cheques first before printing.");
+            showAlert("No Cheques", "No cheques to print.");
             return;
         }
 
+        for (ChequeData cheque : multiChequeDataList) {
+            printSingleChequeFromTable(cheque);
+        }
+    }
+    
+    @FXML
+    private void exportSelectedToExcel() {
+        ObservableList<ChequeData> selectedCheques = chequeTableView.getSelectionModel().getSelectedItems();
+        if (selectedCheques.isEmpty()) {
+            showAlert("No Selection", "Please select one or more cheques to export.");
+            return;
+        }
+        exportToExcel(selectedCheques, "Selected_Cheques_" + LocalDate.now().toString());
+    }
+    
+    @FXML
+    private void exportFilteredToExcel() {
+        // Get the filtered items from the table
+        ObservableList<ChequeData> filteredCheques = chequeTableView.getItems();
+        if (filteredCheques.isEmpty()) {
+            showAlert("No Data", "No filtered cheques to export.");
+            return;
+        }
+        exportToExcel(filteredCheques, "Filtered_Cheques_" + LocalDate.now().toString());
+    }
+    
+    @FXML
+    private void exportAllToExcel() {
+        if (chequeDataList.isEmpty()) {
+            showAlert("No Data", "No cheques to export.");
+            return;
+        }
+        exportToExcel(chequeDataList, "All_Cheques_" + LocalDate.now().toString());
+    }
+    
+    private void exportToExcel(ObservableList<ChequeData> cheques, String defaultFileName) {
         try {
-            // Use the same logic as printAndSaveMultipleChecks but with cheques from table
-            java.util.List<java.util.List<PdfContent>> allPagesContent = new java.util.ArrayList<>();
+            // Create a new workbook and sheet
+            org.apache.poi.ss.usermodel.Workbook workbook = new org.apache.poi.xssf.usermodel.XSSFWorkbook();
+            org.apache.poi.ss.usermodel.Sheet sheet = workbook.createSheet("Cheques");
             
-            // Create PDF content for each cheque from the table
-            for (ChequeData chequeData : multiChequeDataList) {
-                java.util.List<PdfContent> pageContent = createPdfContentForCheque(chequeData);
-                allPagesContent.add(pageContent);
+            // Create header row
+            String[] headers = {"ID", "Date", "Beneficiary", "Amount", "Amount in Words", "Signer"};
+            org.apache.poi.ss.usermodel.Row headerRow = sheet.createRow(0);
+            
+            // Style for header row
+            org.apache.poi.ss.usermodel.CellStyle headerStyle = workbook.createCellStyle();
+            org.apache.poi.ss.usermodel.Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerStyle.setFont(headerFont);
+            headerStyle.setFillForegroundColor(org.apache.poi.ss.usermodel.IndexedColors.GREY_25_PERCENT.getIndex());
+            headerStyle.setFillPattern(org.apache.poi.ss.usermodel.FillPatternType.SOLID_FOREGROUND);
+            
+            // Create header cells
+            for (int i = 0; i < headers.length; i++) {
+                org.apache.poi.ss.usermodel.Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+                // Auto-size the column
+                sheet.autoSizeColumn(i);
             }
             
-            // --- CONVERSION ---
-            // 1 inch = 72 points. 1 inch = 2.54 cm.
-            // Points per cm = 72 / 2.54 = 28.346
-            final float POINTS_PER_CM = 72f / 2.54f;
-
-            // Get selected template for dimensions and background image
-            BankTemplate.Template selectedTemplate = templateComboBox.getValue();
-            float pageWidthInPoints, pageHeightInPoints;
-            String templateImagePath = null;
-            
-            if (selectedTemplate != null) {
-                // --- DESIRED DIMENSIONS (from bank.json in cm) ---
-                float widthInCm = selectedTemplate.getWidth();
-                float heightInCm = selectedTemplate.getHeight();
-                
-                // --- CALCULATED DIMENSIONS IN POINTS ---
-                pageWidthInPoints = widthInCm * POINTS_PER_CM;
-                pageHeightInPoints = heightInCm * POINTS_PER_CM;
-                
-                templateImagePath = selectedTemplate.getImagePath();
-                System.out.println("=== MULTIPLE CHEQUES FROM TABLE DIMENSIONS DEBUG ===");
-                System.out.println("Template: " + selectedTemplate.getTemplateName());
-                System.out.println("Width from bank.json: " + widthInCm + " cm");
-                System.out.println("Height from bank.json: " + heightInCm + " cm");
-                System.out.println("POINTS_PER_CM: " + POINTS_PER_CM);
-                System.out.println("Calculated width in points: " + pageWidthInPoints);
-                System.out.println("Calculated height in points: " + pageHeightInPoints);
-                System.out.println("Template image: " + templateImagePath);
-                System.out.println("Number of cheques from table: " + multiChequeDataList.size());
-                System.out.println("=========================================");
-            } else {
-                // Fallback to default dimensions
-                float widthInCm = 16.7f;
-                float heightInCm = 8.1f;
-                pageWidthInPoints = widthInCm * POINTS_PER_CM;
-                pageHeightInPoints = heightInCm * POINTS_PER_CM;
-                System.out.println("Using default dimensions for multiple cheques from table: " + widthInCm + "cm x " + heightInCm + "cm");
-                System.out.println("Converted to points: " + pageWidthInPoints + " x " + pageHeightInPoints);
-                System.out.println("Number of cheques from table: " + multiChequeDataList.size());
+            // Create data rows
+            int rowNum = 1;
+            for (ChequeData cheque : cheques) {
+                org.apache.poi.ss.usermodel.Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(cheque.getId());
+                row.createCell(1).setCellValue(cheque.getDate());
+                row.createCell(2).setCellValue(cheque.getBeneficiaryName());
+                row.createCell(3).setCellValue(cheque.getAmountNumeric());
+                row.createCell(4).setCellValue(cheque.getAmountWords());
+                row.createCell(5).setCellValue(cheque.getSignerName());
             }
             
-            // Generate PDF document using the same method as printAndSaveMultipleChecks
-            PDDocument document = PdfGenerator.generatePdf(pageWidthInPoints, pageHeightInPoints,
-                                                         allPagesContent, "Amiri-Regular.ttf", templateImagePath);
-            
-            // Print the PDF
-            org.chequePrinter.service.PdfPrinter.printPdf(document, selectedTemplate.getWidth(), selectedTemplate.getHeight());
-            
-            // Save all cheques from table to database
-            for (ChequeData cheque : multiChequeDataList) {
-                DatabaseService.saveCheque(cheque);
+            // Auto-size all columns after data is added
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
             }
             
-            loadChequeRecords();
-            showAlert("Success", multiChequeDataList.size() + " cheques from table printed and saved successfully!");
+            // Create file chooser
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save Excel File");
+            fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Excel Files", "*.xlsx")
+            );
+            fileChooser.setInitialFileName(defaultFileName + ".xlsx");
+            
+            // Show save dialog
+            Stage stage = (Stage) chequeTableView.getScene().getWindow();
+            File file = fileChooser.showSaveDialog(stage);
+            
+            if (file != null) {
+                // Write the workbook to file
+                try (java.io.FileOutputStream outputStream = new java.io.FileOutputStream(file)) {
+                    workbook.write(outputStream);
+                    showAlert("Success", "Cheques exported successfully to: " + file.getAbsolutePath());
+                }
+            }
+            
+            // Close the workbook
+            workbook.close();
             
         } catch (Exception e) {
-            showAlert("Error", "Failed to print cheques from table: " + e.getMessage());
             e.printStackTrace();
+            showAlert("Export Error", "An error occurred while exporting to Excel: " + e.getMessage());
         }
     }
 

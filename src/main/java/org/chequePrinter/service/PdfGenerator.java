@@ -166,14 +166,6 @@ public class PdfGenerator {
             page.setRotation(-90); // -90 degrees clockwise rotation as requested
         }
 
-        // Final debug: Check document dimensions before returning
-        System.out.println("=== FINAL DOCUMENT CHECK ===");
-        if (document.getNumberOfPages() > 0) {
-            org.apache.pdfbox.pdmodel.PDPage firstPage = document.getPage(0);
-            org.apache.pdfbox.pdmodel.common.PDRectangle finalSize = firstPage.getMediaBox();
-        }
-        System.out.println("============================");
-        
         return document;
     }
 }
