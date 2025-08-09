@@ -423,15 +423,19 @@ public class ChequeDataController {
                 PDDocument document = printController.generateMultipleChequePDF(chequeList, selectedTemplate);
                 
                 // Print the entire PDF as one document
-                printController.printPDF(document, selectedTemplate.getWidth(), selectedTemplate.getHeight());
+                boolean printSuccessful = printController.printPDF(document, selectedTemplate.getWidth(), selectedTemplate.getHeight());
                 
-                // Save all cheques to database after successful printing
-                saveCheques(chequeList);
-                
-                // Refresh the main table to show the newly saved records
-                loadChequeRecords();
-                
-                showAlert("Success", chequeList.size() + " cheques printed as one PDF document and saved to database!");
+                if (printSuccessful) {
+                    // Save all cheques to database only after successful printing
+                    saveCheques(chequeList);
+                    
+                    // Refresh the main table to show the newly saved records
+                    loadChequeRecords();
+                    
+                    showAlert("Success", chequeList.size() + " cheques printed as one PDF document and saved to database!");
+                } else {
+                    showAlert("Print Cancelled", "Print job was cancelled. The " + chequeList.size() + " cheques were not saved to the database.");
+                }
                 
             } catch (Exception e) {
                 showAlert("Error", "Failed to print cheques: " + e.getMessage());
@@ -472,14 +476,18 @@ public class ChequeDataController {
                 PDDocument document = printController.generateMultipleChequePDF(chequeList, selectedTemplate);
                 
                 // Print the entire PDF as one document
-                printController.printPDF(document, selectedTemplate.getWidth(), selectedTemplate.getHeight());
+                boolean printSuccessful = printController.printPDF(document, selectedTemplate.getWidth(), selectedTemplate.getHeight());
                 
-                // Note: These cheques are already in the database (from the main table)
-                // But if they were edited in the multi-cheque table, we should update them
-                // For now, we'll just refresh the table to ensure consistency
-                loadChequeRecords();
-                
-                showAlert("Success", chequeList.size() + " cheques from table printed as one PDF document!");
+                if (printSuccessful) {
+                    // Note: These cheques are already in the database (from the main table)
+                    // But if they were edited in the multi-cheque table, we should update them
+                    // For now, we'll just refresh the table to ensure consistency
+                    loadChequeRecords();
+                    
+                    showAlert("Success", chequeList.size() + " cheques from table printed as one PDF document!");
+                } else {
+                    showAlert("Print Cancelled", "Print job was cancelled.");
+                }
                 
             } catch (Exception e) {
                 showAlert("Error", "Failed to print cheques from table: " + e.getMessage());
@@ -502,9 +510,13 @@ public class ChequeDataController {
 
                 // Generate PDF and print
                 PDDocument document = printController.generateChequePDF(cheque, selectedTemplate);
-                printController.printPDF(document, selectedTemplate.getWidth(), selectedTemplate.getHeight());
+                boolean printSuccessful = printController.printPDF(document, selectedTemplate.getWidth(), selectedTemplate.getHeight());
                 
-                showAlert("Success", "Cheque printed successfully!");
+                if (printSuccessful) {
+                    showAlert("Success", "Cheque printed successfully!");
+                } else {
+                    showAlert("Print Cancelled", "Print job was cancelled.");
+                }
                 
             } catch (Exception e) {
                 showAlert("Error", "Failed to print cheque: " + e.getMessage());

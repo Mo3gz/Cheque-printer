@@ -117,8 +117,8 @@ public class ChequePrintController {
                                       allPagesContent, "Amiri-Regular.ttf", templateImagePath);
     }
 
-    public void printPDF(PDDocument document, float widthInCm, float heightInCm) throws Exception {
-        org.chequePrinter.service.PdfPrinter.printPdf(document, widthInCm, heightInCm);
+    public boolean printPDF(PDDocument document, float widthInCm, float heightInCm) throws Exception {
+        return org.chequePrinter.service.PdfPrinter.printPdf(document, widthInCm, heightInCm);
     }
 
     public List<ChequeData> generateChequeDataList(ChequeData baseData, int numChecks, String interval) {

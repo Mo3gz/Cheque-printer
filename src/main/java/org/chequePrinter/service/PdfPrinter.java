@@ -10,10 +10,10 @@ import java.io.IOException;
 
 public class PdfPrinter {
 
-    public static void printPdf(PDDocument document, float widthCm, float heightCm) throws IOException, PrinterException {
+    public static boolean printPdf(PDDocument document, float widthCm, float heightCm) throws IOException, PrinterException {
         if (document == null) {
             System.err.println("Document is null. Cannot print.");
-            return;
+            return false;
         }
 
         // Convert dimensions from cm to inches, then to points
@@ -47,20 +47,23 @@ public class PdfPrinter {
         job.setPageable(book);
 
         // Open print dialog and print
+        boolean printSuccessful = false;
         if (job.printDialog()) {
             job.print();
             System.out.println("PDF sent to printer successfully.");
+            printSuccessful = true;
         } else {
-            System.out.println("Print job was cancelled.");
+            System.out.println("Print job was cancelled by user.");
         }
 
         document.close();
+        return printSuccessful;
     }
 
-    public static void printPaymentPlanPdf(PDDocument document) throws IOException, PrinterException {
+    public static boolean printPaymentPlanPdf(PDDocument document) throws IOException, PrinterException {
         if (document == null) {
             System.err.println("Document is null. Cannot print.");
-            return;
+            return false;
         }
 
         // A4 Portrait dimensions: 21.0cm x 29.7cm
@@ -98,14 +101,17 @@ public class PdfPrinter {
         job.setPageable(book);
 
         // Open print dialog and print
+        boolean printSuccessful = false;
         if (job.printDialog()) {
             job.print();
             System.out.println("Payment Plan PDF sent to printer successfully.");
+            printSuccessful = true;
         } else {
-            System.out.println("Print job was cancelled.");
+            System.out.println("Payment Plan print job was cancelled by user.");
         }
 
         document.close();
+        return printSuccessful;
     }
 
     public static void main(String[] args) throws PrinterException, IOException {
