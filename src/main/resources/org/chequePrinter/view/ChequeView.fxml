@@ -39,6 +39,9 @@
 
                                 <Label text="Signer's Name:" GridPane.rowIndex="6" GridPane.columnIndex="0" style="-fx-font-size: 14;"/>
                                 <TextField fx:id="signerField" GridPane.rowIndex="6" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" style="-fx-font-size: 14; -fx-pref-height: 40;"/>
+                                
+                                <Label text="Phone Number:" GridPane.rowIndex="7" GridPane.columnIndex="0" style="-fx-font-size: 14;"/>
+                                <TextField fx:id="phoneNumberField" GridPane.rowIndex="7" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" style="-fx-font-size: 14; -fx-pref-height: 40;" promptText="01XXXXXXXXX"/>
                             </GridPane>
 
                             <VBox spacing="5" style="-fx-border-color: lightgray; -fx-padding: 10; -fx-border-radius: 5;">
@@ -71,6 +74,7 @@
                                 <TableColumn fx:id="multiAmountColumn" text="Amount" prefWidth="100" editable="true"/>
                                 <TableColumn fx:id="multiAmountWordsColumn" text="Amount in Words" prefWidth="200" editable="false"/>
                                 <TableColumn fx:id="multiSignerColumn" text="Signer" prefWidth="120" editable="false"/>
+                                <TableColumn fx:id="multiPhoneNumberColumn" text="Phone Number" prefWidth="120" editable="false"/>
                                 <TableColumn fx:id="multiActionColumn" text="Action" prefWidth="100"/>
                             </columns>
                         </TableView>
@@ -85,6 +89,7 @@
                 <VBox spacing="10" style="-fx-padding: 10;">
                     <HBox spacing="10">
                         <TextField fx:id="filterBeneficiaryField" promptText="Filter by Signer Name" HBox.hgrow="ALWAYS"/>
+                        <TextField fx:id="filterPhoneNumberField" promptText="Filter by Phone Number" HBox.hgrow="ALWAYS"/>
                         <DatePicker fx:id="startDatePicker" promptText="Start Date"/>
                         <DatePicker fx:id="endDatePicker" promptText="End Date"/>
                         <Button text="Clear Filters" onAction="#clearFilters"/>
@@ -97,6 +102,7 @@
                             <TableColumn fx:id="amountNumericColumn" text="Amount"/>
                             <TableColumn fx:id="amountWordsColumn" text="Amount in Words"/>
                             <TableColumn fx:id="signerColumn" text="Signer"/>
+                            <TableColumn fx:id="phoneNumberColumn" text="Phone Number"/>
                         </columns>
                     </TableView>
                     <HBox spacing="10" alignment="CENTER_LEFT">

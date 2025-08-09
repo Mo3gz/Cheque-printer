@@ -16,7 +16,9 @@ public class DatabaseService {
                 Statement stmt = conn.createStatement();
                 // Enable UTF-8 support for SQLite
                 stmt.execute("PRAGMA encoding = 'UTF-8';");
-                String sql = "CREATE TABLE IF NOT EXISTS cheques ("
+                
+                // Create table if it doesn't exist
+                String createTableSql = "CREATE TABLE IF NOT EXISTS cheques ("
                         + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                         + "cheque_date TEXT NOT NULL,"
                         + "beneficiary_name TEXT NOT NULL,"
@@ -24,7 +26,17 @@ public class DatabaseService {
                         + "amount_words TEXT NOT NULL,"
                         + "signer_name TEXT NOT NULL"
                         + ");";
-                stmt.execute(sql);
+                stmt.execute(createTableSql);
+                
+                // Try to add phone_number column if it doesn't exist
+                try {
+                    stmt.execute("ALTER TABLE cheques ADD COLUMN phone_number TEXT");
+                    System.out.println("Added phone_number column to existing table");
+                } catch (SQLException e) {
+                    // Column might already exist, which is fine
+                    System.out.println("Phone number column already exists or was added successfully");
+                }
+                
                 System.out.println("Database initialized with UTF-8 encoding");
             }
         } catch (SQLException e) {
@@ -33,7 +45,7 @@ public class DatabaseService {
     }
 
     public static void saveCheque(ChequeData cheque) {
-        String sql = "INSERT INTO cheques(cheque_date, beneficiary_name, amount_numeric, amount_words, signer_name) VALUES(?,?,?,?,?)";
+        String sql = "INSERT INTO cheques(cheque_date, beneficiary_name, amount_numeric, amount_words, signer_name, phone_number) VALUES(?,?,?,?,?,?)";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -42,6 +54,7 @@ public class DatabaseService {
             pstmt.setDouble(3, Double.parseDouble(cheque.getAmountNumeric()));
             pstmt.setString(4, cheque.getAmountWords());
             pstmt.setString(5, cheque.getSignerName());
+            pstmt.setString(6, cheque.getPhoneNumber());
             pstmt.executeUpdate();
             System.out.println("Cheque saved with Arabic text: " + cheque.getBeneficiaryName());
         } catch (SQLException e) {
@@ -64,7 +77,8 @@ public class DatabaseService {
                         rs.getString("beneficiary_name"),
                         String.valueOf(rs.getDouble("amount_numeric")),
                         rs.getString("amount_words"),
-                        rs.getString("signer_name")
+                        rs.getString("signer_name"),
+                        rs.getString("phone_number")
                 ));
             }
         } catch (SQLException e) {

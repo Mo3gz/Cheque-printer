@@ -33,6 +33,8 @@ public class ChequeDataController {
     private TableColumn<ChequeData, String> amountWordsColumn;
     @FXML
     private TableColumn<ChequeData, String> signerColumn;
+    @FXML
+    private TableColumn<ChequeData, String> phoneNumberColumn;
 
     // Multiple cheque editing table
     @FXML
@@ -47,6 +49,8 @@ public class ChequeDataController {
     private TableColumn<ChequeData, String> multiAmountWordsColumn;
     @FXML
     private TableColumn<ChequeData, String> multiSignerColumn;
+    @FXML
+    private TableColumn<ChequeData, String> multiPhoneNumberColumn;
     @FXML
     private TableColumn<ChequeData, Void> multiActionColumn;
 
@@ -73,6 +77,7 @@ public class ChequeDataController {
         amountNumericColumn.setCellValueFactory(new PropertyValueFactory<>("amountNumeric"));
         amountWordsColumn.setCellValueFactory(new PropertyValueFactory<>("amountWords"));
         signerColumn.setCellValueFactory(new PropertyValueFactory<>("signerName"));
+        phoneNumberColumn.setCellValueFactory(new PropertyValueFactory<>("phoneNumber"));
 
         dateColumn.setCellFactory(column -> new TableCell<ChequeData, String>() {
             @Override
@@ -112,6 +117,7 @@ public class ChequeDataController {
         multiAmountColumn.setCellValueFactory(new PropertyValueFactory<>("amountNumeric"));
         multiAmountWordsColumn.setCellValueFactory(new PropertyValueFactory<>("amountWords"));
         multiSignerColumn.setCellValueFactory(new PropertyValueFactory<>("signerName"));
+        multiPhoneNumberColumn.setCellValueFactory(new PropertyValueFactory<>("phoneNumber"));
 
         // Make table editable
         multiChequeTableView.setEditable(true);
@@ -191,13 +197,22 @@ public class ChequeDataController {
                 textField = new TextField(formatAmountDisplay(getItem()));
                 textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
                 
+                // Flag to prevent duplicate commit events
+                final boolean[] isCommitting = {false};
+                
                 textField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
-                    if (!isNowFocused) {
+                    if (!isNowFocused && !isCommitting[0]) {
+                        isCommitting[0] = true;
                         commitEdit(textField.getText());
                     }
                 });
                 
-                textField.setOnAction(evt -> commitEdit(textField.getText()));
+                textField.setOnAction(evt -> {
+                    if (!isCommitting[0]) {
+                        isCommitting[0] = true;
+                        commitEdit(textField.getText());
+                    }
+                });
                 
                 textField.setOnKeyPressed(event -> {
                     if (event.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
@@ -252,7 +267,7 @@ public class ChequeDataController {
                 multiChequeTableView.refresh();
             } else {
                 showAlert("Invalid Amount", "Please enter a valid positive integer amount only.\nDecimals like 50.0 or 50.01 are not allowed.\nExample: 100, 250, 1000");
-                // Revert to original value
+                // Revert to original value - no need to refresh as the edit will be cancelled automatically
                 multiChequeTableView.refresh();
             }
         });
@@ -300,7 +315,8 @@ public class ChequeDataController {
             chequeData.getBeneficiaryName(),
             chequeData.getAmountNumeric(),
             chequeData.getAmountWords(),
-            chequeData.getSignerName()
+            chequeData.getSignerName(),
+            chequeData.getPhoneNumber()
         );
         DatabaseService.saveCheque(chequeToSave);
         loadChequeRecords();
@@ -351,6 +367,7 @@ public class ChequeDataController {
                 chequeData.setAmountNumeric(baseData.getAmountNumeric());
                 chequeData.setAmountWords(baseData.getAmountWords());
                 chequeData.setSignerName(baseData.getSignerName());
+                chequeData.setPhoneNumber(baseData.getPhoneNumber());
                 
                 multiChequeDataList.add(chequeData);
                 

@@ -34,6 +34,7 @@ public class SimpleController implements Initializable {
     @FXML private TextField signerField;
     @FXML private TextField numChecksField;
     @FXML private ComboBox<String> intervalComboBox;
+    @FXML private TextField phoneNumberField;
 
     @FXML private TableView<ChequeData> chequeTableView;
     @FXML private TableColumn<ChequeData, Integer> idColumn;
@@ -42,8 +43,10 @@ public class SimpleController implements Initializable {
     @FXML private TableColumn<ChequeData, String> amountNumericColumn;
     @FXML private TableColumn<ChequeData, String> amountWordsColumn;
     @FXML private TableColumn<ChequeData, String> signerColumn;
+    @FXML private TableColumn<ChequeData, String> phoneNumberColumn;
 
     @FXML private TextField filterBeneficiaryField;
+    @FXML private TextField filterPhoneNumberField;
     @FXML private DatePicker startDatePicker;
     @FXML private DatePicker endDatePicker;
 
@@ -54,6 +57,7 @@ public class SimpleController implements Initializable {
     @FXML private TableColumn<ChequeData, String> multiAmountColumn;
     @FXML private TableColumn<ChequeData, String> multiAmountWordsColumn;
     @FXML private TableColumn<ChequeData, String> multiSignerColumn;
+    @FXML private TableColumn<ChequeData, String> multiPhoneNumberColumn;
     @FXML private TableColumn<ChequeData, Void> multiActionColumn;
 
     // Refactored sub-controllers
@@ -104,6 +108,7 @@ public class SimpleController implements Initializable {
         setPrivateField(formController, "signerField", signerField);
         setPrivateField(formController, "numChecksField", numChecksField);
         setPrivateField(formController, "intervalComboBox", intervalComboBox);
+        setPrivateField(formController, "phoneNumberField", phoneNumberField);
 
         // Inject preview components
         setPrivateField(previewController, "previewPane", previewPane);
@@ -126,16 +131,19 @@ public class SimpleController implements Initializable {
         setPrivateField(dataController, "amountNumericColumn", amountNumericColumn);
         setPrivateField(dataController, "amountWordsColumn", amountWordsColumn);
         setPrivateField(dataController, "signerColumn", signerColumn);
+        setPrivateField(dataController, "phoneNumberColumn", phoneNumberColumn);
         setPrivateField(dataController, "multiChequeTableView", multiChequeTableView);
         setPrivateField(dataController, "multiDateColumn", multiDateColumn);
         setPrivateField(dataController, "multiBeneficiaryColumn", multiBeneficiaryColumn);
         setPrivateField(dataController, "multiAmountColumn", multiAmountColumn);
         setPrivateField(dataController, "multiAmountWordsColumn", multiAmountWordsColumn);
         setPrivateField(dataController, "multiSignerColumn", multiSignerColumn);
+        setPrivateField(dataController, "multiPhoneNumberColumn", multiPhoneNumberColumn);
         setPrivateField(dataController, "multiActionColumn", multiActionColumn);
 
         // Inject filter components
         setPrivateField(filterController, "filterBeneficiaryField", filterBeneficiaryField);
+        setPrivateField(filterController, "filterPhoneNumberField", filterPhoneNumberField);
         setPrivateField(filterController, "startDatePicker", startDatePicker);
         setPrivateField(filterController, "endDatePicker", endDatePicker);
     }
@@ -175,10 +183,13 @@ public class SimpleController implements Initializable {
         formController.getAmountWordsField().textProperty().addListener((obs, old, val) -> updatePreview());
         formController.getSignerField().textProperty().addListener((obs, old, val) -> updatePreview());
         formController.getFirstCheckDatePicker().valueProperty().addListener((obs, old, val) -> updatePreview());
+        if (formController.getPhoneNumberField() != null) {
+            formController.getPhoneNumberField().textProperty().addListener((obs, old, val) -> updatePreview());
+        }
     }
 
     private void updatePreview() {
-        String date = formController.getFirstCheckDatePicker().getValue() != null ? 
+        String date = formController.getFirstCheckDatePicker().getValue() != null ?
                      formController.getFirstCheckDatePicker().getValue().toString() : "";
         String beneficiary = formController.getBeneficiaryField().getText();
         String amountWords = formController.getAmountWordsField().getText();

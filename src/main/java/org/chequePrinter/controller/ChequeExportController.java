@@ -76,7 +76,7 @@ public class ChequeExportController {
             Sheet sheet = workbook.createSheet("Cheques");
             
             // Create header row
-            String[] headers = {"ID", "Date", "Beneficiary", "Amount", "Amount in Words", "Signer"};
+            String[] headers = {"ID", "Date", "Beneficiary", "Amount", "Amount in Words", "Signer", "Phone Number"};
             Row headerRow = sheet.createRow(0);
             
             // Style for header row
@@ -106,6 +106,7 @@ public class ChequeExportController {
                 row.createCell(3).setCellValue(cheque.getAmountNumeric());
                 row.createCell(4).setCellValue(cheque.getAmountWords());
                 row.createCell(5).setCellValue(cheque.getSignerName());
+                row.createCell(6).setCellValue(cheque.getPhoneNumber() != null ? cheque.getPhoneNumber() : "");
             }
             
             // Auto-size all columns after data is added
@@ -149,7 +150,7 @@ public class ChequeExportController {
             Sheet sheet = workbook.createSheet(sheetName != null ? sheetName : "Cheques");
             
             // Create header row
-            String[] headers = {"ID", "Date", "Beneficiary", "Amount", "Amount in Words", "Signer"};
+            String[] headers = {"ID", "Date", "Beneficiary", "Amount", "Amount in Words", "Signer", "Phone Number"};
             Row headerRow = sheet.createRow(0);
             
             // Style for header row
@@ -177,6 +178,7 @@ public class ChequeExportController {
                 row.createCell(3).setCellValue(cheque.getAmountNumeric());
                 row.createCell(4).setCellValue(cheque.getAmountWords());
                 row.createCell(5).setCellValue(cheque.getSignerName());
+                row.createCell(6).setCellValue(cheque.getPhoneNumber() != null ? cheque.getPhoneNumber() : "");
             }
             
             // Auto-size all columns after data is added

@@ -7,6 +7,7 @@ public class ChequeData {
     private String amountNumeric;
     private String amountWords;
     private String signerName;
+    private String phoneNumber;
 
     // Default constructor
     public ChequeData() {}
@@ -19,6 +20,15 @@ public class ChequeData {
         this.signerName = signerName;
     }
 
+    public ChequeData(String date, String beneficiaryName, String amountNumeric, String amountWords, String signerName, String phoneNumber) {
+        this.date = date;
+        this.beneficiaryName = beneficiaryName;
+        this.amountNumeric = amountNumeric;
+        this.amountWords = amountWords;
+        this.signerName = signerName;
+        this.phoneNumber = phoneNumber;
+    }
+
     public ChequeData(int id, String date, String beneficiaryName, String amountNumeric, String amountWords, String signerName) {
         this.id = id;
         this.date = date;
@@ -28,6 +38,16 @@ public class ChequeData {
         this.signerName = signerName;
     }
 
+    public ChequeData(int id, String date, String beneficiaryName, String amountNumeric, String amountWords, String signerName, String phoneNumber) {
+        this.id = id;
+        this.date = date;
+        this.beneficiaryName = beneficiaryName;
+        this.amountNumeric = amountNumeric;
+        this.amountWords = amountWords;
+        this.signerName = signerName;
+        this.phoneNumber = phoneNumber;
+    }
+
     // Getters
     public int getId() { return id; }
     public String getDate() { return date; }
@@ -35,6 +55,7 @@ public class ChequeData {
     public String getAmountNumeric() { return amountNumeric; }
     public String getAmountWords() { return amountWords; }
     public String getSignerName() { return signerName; }
+    public String getPhoneNumber() { return phoneNumber; }
 
     // Setters
     public void setId(int id) { this.id = id; }
@@ -43,4 +64,13 @@ public class ChequeData {
     public void setAmountNumeric(String amountNumeric) { this.amountNumeric = amountNumeric; }
     public void setAmountWords(String amountWords) { this.amountWords = amountWords; }
     public void setSignerName(String signerName) { this.signerName = signerName; }
+    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+    
+    // Helper method to validate phone number format (11 digits starting with 01)
+    public static boolean isValidPhoneNumber(String phoneNumber) {
+        if (phoneNumber == null || phoneNumber.isEmpty()) {
+            return true; // Phone number is optional
+        }
+        return phoneNumber.matches("^01\\d{9}$");
+    }
 }

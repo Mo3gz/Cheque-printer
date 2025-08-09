@@ -15,6 +15,8 @@ public class ChequeFilterController {
     @FXML
     private TextField filterBeneficiaryField;
     @FXML
+    private TextField filterPhoneNumberField;
+    @FXML
     private DatePicker startDatePicker;
     @FXML
     private DatePicker endDatePicker;
@@ -29,6 +31,7 @@ public class ChequeFilterController {
     private void setupEventHandlers() {
         // Setup filtering listeners
         filterBeneficiaryField.textProperty().addListener((obs, oldVal, newVal) -> applyDateFilter());
+        filterPhoneNumberField.textProperty().addListener((obs, oldVal, newVal) -> applyDateFilter());
         startDatePicker.valueProperty().addListener((obs, oldVal, newVal) -> applyDateFilter());
         endDatePicker.valueProperty().addListener((obs, oldVal, newVal) -> applyDateFilter());
     }
@@ -39,6 +42,7 @@ public class ChequeFilterController {
 
         // Get the current filter values
         String beneficiaryFilter = filterBeneficiaryField.getText();
+        String phoneNumberFilter = filterPhoneNumberField.getText();
         LocalDate startDate = startDatePicker.getValue();
         LocalDate endDate = endDatePicker.getValue();
 
@@ -50,6 +54,14 @@ public class ChequeFilterController {
             // Filter by beneficiary name if provided
             if (beneficiaryFilter != null && !beneficiaryFilter.isEmpty()) {
                 if (!cheque.getSignerName().toLowerCase().contains(beneficiaryFilter.toLowerCase())) {
+                    return false;
+                }
+            }
+
+            // Filter by phone number if provided
+            if (phoneNumberFilter != null && !phoneNumberFilter.isEmpty()) {
+                String chequePhone = cheque.getPhoneNumber();
+                if (chequePhone == null || !chequePhone.toLowerCase().contains(phoneNumberFilter.toLowerCase())) {
                     return false;
                 }
             }
@@ -91,6 +103,7 @@ public class ChequeFilterController {
     public FilteredList<ChequeData> applyFilterToList(ObservableList<ChequeData> sourceList) {
         // Get the current filter values
         String beneficiaryFilter = filterBeneficiaryField.getText();
+        String phoneNumberFilter = filterPhoneNumberField.getText();
         LocalDate startDate = startDatePicker.getValue();
         LocalDate endDate = endDatePicker.getValue();
 
@@ -102,6 +115,14 @@ public class ChequeFilterController {
             // Filter by beneficiary name if provided
             if (beneficiaryFilter != null && !beneficiaryFilter.isEmpty()) {
                 if (!cheque.getSignerName().toLowerCase().contains(beneficiaryFilter.toLowerCase())) {
+                    return false;
+                }
+            }
+
+            // Filter by phone number if provided
+            if (phoneNumberFilter != null && !phoneNumberFilter.isEmpty()) {
+                String chequePhone = cheque.getPhoneNumber();
+                if (chequePhone == null || !chequePhone.toLowerCase().contains(phoneNumberFilter.toLowerCase())) {
                     return false;
                 }
             }
@@ -142,6 +163,7 @@ public class ChequeFilterController {
     @FXML
     public void clearFilters() {
         filterBeneficiaryField.clear();
+        filterPhoneNumberField.clear();
         startDatePicker.setValue(null);
         endDatePicker.setValue(null);
         
@@ -152,12 +174,17 @@ public class ChequeFilterController {
 
     public boolean hasActiveFilters() {
         return (filterBeneficiaryField.getText() != null && !filterBeneficiaryField.getText().trim().isEmpty()) ||
-               startDatePicker.getValue() != null || 
+               (filterPhoneNumberField.getText() != null && !filterPhoneNumberField.getText().trim().isEmpty()) ||
+               startDatePicker.getValue() != null ||
                endDatePicker.getValue() != null;
     }
 
     public String getBeneficiaryFilter() {
         return filterBeneficiaryField.getText();
+    }
+
+    public String getPhoneNumberFilter() {
+        return filterPhoneNumberField.getText();
     }
 
     public LocalDate getStartDate() {
@@ -170,6 +197,10 @@ public class ChequeFilterController {
 
     public void setBeneficiaryFilter(String filter) {
         filterBeneficiaryField.setText(filter);
+    }
+
+    public void setPhoneNumberFilter(String filter) {
+        filterPhoneNumberField.setText(filter);
     }
 
     public void setStartDate(LocalDate date) {
@@ -187,6 +218,7 @@ public class ChequeFilterController {
 
     // Getters for UI components
     public TextField getFilterBeneficiaryField() { return filterBeneficiaryField; }
+    public TextField getFilterPhoneNumberField() { return filterPhoneNumberField; }
     public DatePicker getStartDatePicker() { return startDatePicker; }
     public DatePicker getEndDatePicker() { return endDatePicker; }
 }

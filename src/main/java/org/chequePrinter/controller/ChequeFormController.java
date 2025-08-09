@@ -23,6 +23,8 @@ public class ChequeFormController {
     private TextField numChecksField;
     @FXML
     private ComboBox<String> intervalComboBox;
+    @FXML
+    private TextField phoneNumberField;
 
     public void initialize() {
         setupUI();
@@ -66,6 +68,7 @@ public class ChequeFormController {
         chequeData.setAmountNumeric(amountField.getText());
         chequeData.setAmountWords(amountWordsField.getText());
         chequeData.setSignerName(signerField.getText());
+        chequeData.setPhoneNumber(phoneNumberField.getText());
         return chequeData;
     }
 
@@ -79,6 +82,9 @@ public class ChequeFormController {
         amountField.setText(chequeData.getAmountNumeric());
         amountWordsField.setText(chequeData.getAmountWords());
         signerField.setText(chequeData.getSignerName());
+        if (phoneNumberField != null) {
+            phoneNumberField.setText(chequeData.getPhoneNumber() != null ? chequeData.getPhoneNumber() : "");
+        }
     }
 
     public boolean validateInput() {
@@ -134,6 +140,13 @@ public class ChequeFormController {
             return false;
         }
         
+        // Validate phone number format if provided
+        String phoneNumber = phoneNumberField.getText().trim();
+        if (!phoneNumber.isEmpty() && !ChequeData.isValidPhoneNumber(phoneNumber)) {
+            showAlert("Validation Error", "Phone number must be 11 digits and start with 01.");
+            return false;
+        }
+        
         return true;
     }
 
@@ -153,4 +166,5 @@ public class ChequeFormController {
     public TextField getSignerField() { return signerField; }
     public TextField getNumChecksField() { return numChecksField; }
     public ComboBox<String> getIntervalComboBox() { return intervalComboBox; }
+    public TextField getPhoneNumberField() { return phoneNumberField; }
 }
