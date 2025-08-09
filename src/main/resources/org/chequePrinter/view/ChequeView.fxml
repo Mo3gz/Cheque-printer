@@ -81,6 +81,8 @@
                         <HBox spacing="10">
                             <Button text="Clear Table" onAction="#clearMultiChequeTable"/>
                             <Button text="Print All" onAction="#printAllCheques"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button text="Print Payment Plan" onAction="#printPaymentPlan" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 8 15; -fx-cursor: hand;" HBox.hgrow="NEVER"/>
                         </HBox>
                     </VBox>
                 </VBox>

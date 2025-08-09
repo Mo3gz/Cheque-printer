@@ -9,8 +9,11 @@ import javafx.scene.text.Text;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.chequePrinter.model.BankTemplate;
 import org.chequePrinter.model.ChequeData;
+import org.chequePrinter.service.PaymentPlanService;
+import org.chequePrinter.service.PdfPrinter;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -328,6 +331,34 @@ public class SimpleController implements Initializable {
     @FXML
     private void exportAllToExcel() {
         exportController.exportAllToExcel();
+    }
+    
+    @FXML
+    private void printPaymentPlan() {
+        try {
+            // Get cheques from the multiple cheque editing table
+            List<ChequeData> cheques = new ArrayList<>(dataController.getMultiChequeData());
+            
+            if (cheques.isEmpty()) {
+                showAlert("No Data", "No cheques found in the editing table. Please generate multiple cheques first.");
+                return;
+            }
+            
+            // Get signer name from the first cheque (assuming all cheques have the same signer)
+            String signerName = cheques.get(0).getSignerName();
+            
+            // Generate payment plan PDF
+            PDDocument document = PaymentPlanService.generatePaymentPlanPDF(cheques, signerName);
+            
+            // Print the PDF using dedicated A4 Portrait method for payment plan
+            PdfPrinter.printPaymentPlanPdf(document);
+            
+            showAlert("Success", "Payment plan printed successfully! Total cheques: " + cheques.size());
+            
+        } catch (Exception e) {
+            showAlert("Error", "Failed to print payment plan: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void showAlert(String title, String message) {
