@@ -10,13 +10,18 @@ import org.chequePrinter.util.ExceptionHandler;
 import org.chequePrinter.util.LogCleanupService;
 import org.chequePrinter.util.LoggerUtil;
 import org.slf4j.Logger;
+import javafx.scene.control.Alert;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.prefs.Preferences;
 
 public class App extends Application {
     
     private static final Logger logger = LoggerUtil.getLogger(App.class);
+    private static final String REGISTRY_PATH = "org/chequePrinter";
+    private static final String LICENSE_KEY = "licenseText";
+    private static final String EXPECTED_LICENSE_TEXT = "Ayman&Paula"; // IMPORTANT: Replace with your actual license text
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -39,6 +44,13 @@ public class App extends Application {
         LogCleanupService.LogsInfo logsInfo = LogCleanupService.getLogsInfo();
         logger.info("Logs directory status: {}", logsInfo.toString());
         
+        // Perform license check
+        if (!checkLicense()) {
+            showAlert("License Invalid", "This copy is not authorized for this machine. Please contact support.");
+            logger.error("License check failed. Exiting application.");
+            System.exit(0); // Exit if license check fails
+        }
+
         try {
             // Initialize database
             LoggerUtil.logOperationStart(logger, "database_initialization");
@@ -77,6 +89,26 @@ public class App extends Application {
         }
     }
     
+    private boolean checkLicense() {
+        Preferences prefs = Preferences.userRoot().node(REGISTRY_PATH);
+        String storedLicenseText = prefs.get(LICENSE_KEY, null);
+        
+        if (storedLicenseText == null || !storedLicenseText.equals(EXPECTED_LICENSE_TEXT)) {
+            logger.warn("License text not found or does not match. Stored: {}, Expected: {}", storedLicenseText, EXPECTED_LICENSE_TEXT);
+            return false;
+        }
+        logger.info("License check successful.");
+        return true;
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
     private void createLogsDirectory() {
         try {
             File logsDir = new File("logs");

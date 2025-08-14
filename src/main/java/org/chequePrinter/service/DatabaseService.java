@@ -5,6 +5,7 @@ import org.chequePrinter.util.ExceptionHandler;
 import org.chequePrinter.util.LoggerUtil;
 import org.slf4j.Logger;
 
+import java.io.File;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,23 @@ import java.util.List;
 public class DatabaseService {
 
     private static final Logger logger = LoggerUtil.getLogger(DatabaseService.class);
-    private static final String DB_URL = "jdbc:sqlite:cheques.db";
+    private static String DB_URL;
+
+    static {
+        try {
+            String appDataDir = System.getProperty("user.home") + File.separator + "ChequePrinterData";
+            File directory = new File(appDataDir);
+            if (!directory.exists()) {
+                directory.mkdirs(); // Create the directory if it doesn't exist
+            }
+            DB_URL = "jdbc:sqlite:" + appDataDir + File.separator + "cheques.db";
+            logger.info("Database URL set to: {}", DB_URL);
+        } catch (Exception e) {
+            logger.error("Failed to set database URL: {}", e.getMessage());
+            // Fallback to a default or handle error appropriately
+            DB_URL = "jdbc:sqlite:cheques.db"; // Fallback
+        }
+    }
 
     public static void initializeDatabase() {
         LoggerUtil.logMethodEntry(logger, "initializeDatabase");

@@ -5,6 +5,17 @@
 <?import javafx.scene.text.Text?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.chequePrinter.controller.SimpleController">
+    <top>
+        <MenuBar>
+            <menus>
+                <Menu text="Tools">
+                    <items>
+                        <MenuItem text="JSON Editor" onAction="#handleJsonEditorMenuItem"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
     <center>
         <TabPane tabClosingPolicy="UNAVAILABLE" style="-fx-tab-min-width: 100px;">
             <Tab text="Check Creation">

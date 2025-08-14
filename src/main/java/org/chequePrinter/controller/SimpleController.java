@@ -767,4 +767,19 @@ public class SimpleController implements Initializable {
     public ChequeFilterController getFilterController() { return filterController; }
     public ChequeExportController getExportController() { return exportController; }
     public BankTemplateController getTemplateController() { return templateController; }
+
+    @FXML
+    private void handleJsonEditorMenuItem() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/chequePrinter/view/JsonEditorView.fxml"));
+            Parent root = fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("JSON Editor");
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+        } catch (IOException e) {
+            ExceptionHandler.handleException(logger, "handleJsonEditorMenuItem", e, "Failed to open JSON Editor.");
+        }
+    }
 }
