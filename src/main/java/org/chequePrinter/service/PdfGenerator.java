@@ -198,9 +198,13 @@ public class PdfGenerator {
                                 contentStream.beginText();
                                 contentStream.newLineAtOffset(content.x, content.y);
 
-                                // Format numbers with commas and process Arabic text
-                                String textWithFormattedNumbers = formatNumbersInText(content.text);
-                                String processedText = shapeAndReorderArabicText(textWithFormattedNumbers);
+                                // Only format numbers in amount field (check if y-coordinate matches amount field position)
+                                String textToProcess = content.text;
+                                // Check if this is the amount field by its y-coordinate (you may need to adjust this check based on your layout)
+                                if (Math.abs(content.y - 67) < 5) { // 67 is the y-coordinate for amount field from bank.json
+                                    textToProcess = formatNumbersInText(content.text);
+                                }
+                                String processedText = shapeAndReorderArabicText(textToProcess);
                                 contentStream.showText(processedText);
                                 contentStream.endText();
                             }
