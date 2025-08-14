@@ -23,6 +23,57 @@ public class PdfGenerator {
      * @param text The Arabic text to shape and reorder.
      * @return The shaped and reordered text.
      */
+    /**
+     * Formats a number string with thousands separators.
+     * Example: "5000" -> "5,000", "1000000" -> "1,000,000"
+     *
+     * @param numberStr The number string to format
+     * @return Formatted number string with thousands separators
+     */
+    private static String formatNumberWithCommas(String numberStr) {
+        if (numberStr == null || numberStr.trim().isEmpty()) {
+            return numberStr;
+        }
+        
+        try {
+            // Remove any existing commas and parse as a number
+            String cleanNumber = numberStr.replaceAll(",", "").trim();
+            // Parse as double to handle decimal numbers, then format with commas
+            double number = Double.parseDouble(cleanNumber);
+            
+            // Use String.format with Locale.US to ensure period as decimal separator
+            if (cleanNumber.contains(".")) {
+                // Handle decimal numbers
+                return String.format("%,.2f", number).replace(".00", "");
+            } else {
+                // Handle whole numbers
+                return String.format("%,d", (long) number);
+            }
+        } catch (NumberFormatException e) {
+            // If it's not a valid number, return the original string
+            return numberStr;
+        }
+    }
+    
+    private static String formatNumbersInText(String text) {
+        if (text == null || text.isEmpty()) {
+            return text;
+        }
+        
+        // This pattern matches integers and decimal numbers
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\d+(?:\\.\\d+)?");
+        java.util.regex.Matcher matcher = pattern.matcher(text);
+        StringBuffer result = new StringBuffer();
+        
+        while (matcher.find()) {
+            String number = matcher.group();
+            matcher.appendReplacement(result, formatNumberWithCommas(number));
+        }
+        matcher.appendTail(result);
+        
+        return result.toString();
+    }
+
     private static String shapeAndReorderArabicText(String text) {
         if (text == null || text.trim().isEmpty()) {
             return text;
@@ -147,8 +198,9 @@ public class PdfGenerator {
                                 contentStream.beginText();
                                 contentStream.newLineAtOffset(content.x, content.y);
 
-                                // Process Arabic text
-                                String processedText = shapeAndReorderArabicText(content.text);
+                                // Format numbers with commas and process Arabic text
+                                String textWithFormattedNumbers = formatNumbersInText(content.text);
+                                String processedText = shapeAndReorderArabicText(textWithFormattedNumbers);
                                 contentStream.showText(processedText);
                                 contentStream.endText();
                             }

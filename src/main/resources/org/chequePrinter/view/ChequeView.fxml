@@ -20,82 +20,88 @@
         <TabPane tabClosingPolicy="UNAVAILABLE" style="-fx-tab-min-width: 100px;">
             <Tab text="Check Creation">
                 <VBox spacing="10" style="-fx-padding: 10;" VBox.vgrow="ALWAYS">
-                    <HBox spacing="10" HBox.hgrow="ALWAYS">
-                        <VBox HBox.hgrow="ALWAYS" style="-fx-min-width: 400; -fx-pref-width: 600; -fx-max-width: 1000;" VBox.vgrow="ALWAYS">
-                            <Label text="Live Preview" style="-fx-font-weight: bold;"/>
-                            <StackPane fx:id="previewPane" style="-fx-background-color: white; -fx-border-color: white; -fx-border-width: 1; -fx-alignment: center;" minWidth="400" prefWidth="580" minHeight="250" prefHeight="400" VBox.vgrow="ALWAYS">
-                                <ImageView fx:id="chequeImageView" preserveRatio="true" fitWidth="580" fitHeight="400" smooth="true" pickOnBounds="true" />
-                            </StackPane>
-                        </VBox>
-                        <VBox spacing="15" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" style="-fx-padding: 10; -fx-min-width: 300; -fx-pref-width: 450; -fx-max-width: 450;">
-                            <Label text="Data Entry" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
-                            <GridPane hgap="15" vgap="12" style="-fx-padding: 5;">
-                                <Label text="Bank:" GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-font-size: 14;"/>
-                                <ComboBox fx:id="bankComboBox" GridPane.rowIndex="0" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" style="-fx-font-size: 14; -fx-pref-height: 40; -fx-min-width: 200;"/>
+                    <SplitPane dividerPositions="0.2" orientation="VERTICAL" VBox.vgrow="ALWAYS" style="-fx-divider-thickness: 2;">
+                        <items>
+                            <VBox VBox.vgrow="NEVER" minHeight="200" maxHeight="800" style="-fx-pref-height: 200;">
+                                <HBox spacing="10" HBox.hgrow="ALWAYS">
+                                    <VBox HBox.hgrow="ALWAYS" style="-fx-min-width: 400; -fx-pref-width: 600; -fx-max-width: 1000;">
+                                        <Label text="Live Preview" style="-fx-font-weight: bold;"/>
+                                        <StackPane fx:id="previewPane" style="-fx-background-color: white; -fx-border-color: white; -fx-border-width: 1; -fx-alignment: center;" minWidth="400" prefWidth="580" VBox.vgrow="NEVER">
+                                            <ImageView fx:id="chequeImageView" preserveRatio="true" fitWidth="580" smooth="true" pickOnBounds="true" />
+                                        </StackPane>
+                                    </VBox>
+                                    <VBox spacing="15" HBox.hgrow="ALWAYS" style="-fx-padding: 10; -fx-min-width: 300; -fx-pref-width: 450; -fx-max-width: 450;">
+                                        <Label text="Data Entry" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
+                                        <GridPane hgap="15" vgap="12" style="-fx-padding: 5;" VBox.vgrow="NEVER">
+                                            <Label text="Bank:" GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-font-size: 14;"/>
+                                            <ComboBox fx:id="bankComboBox" GridPane.rowIndex="0" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" style="-fx-font-size: 14; -fx-pref-height: 40; -fx-min-width: 200;"/>
 
-                                <Label text="Template:" GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-font-size: 14;"/>
-                                <ComboBox fx:id="templateComboBox" GridPane.rowIndex="1" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" style="-fx-font-size: 14; -fx-pref-height: 40;"/>
+                                            <Label text="Template:" GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-font-size: 14;"/>
+                                            <ComboBox fx:id="templateComboBox" GridPane.rowIndex="1" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" style="-fx-font-size: 14; -fx-pref-height: 40;"/>
 
-                                <Label text="First Check Date:" GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-font-size: 14;"/>
-                                <DatePicker fx:id="firstCheckDatePicker" GridPane.rowIndex="2" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" style="-fx-font-size: 14; -fx-pref-height: 40;"/>
+                                            <Label text="First Check Date:" GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-font-size: 14;"/>
+                                            <DatePicker fx:id="firstCheckDatePicker" GridPane.rowIndex="2" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" style="-fx-font-size: 14; -fx-pref-height: 40;"/>
 
-                                <Label text="Beneficiary Name:" GridPane.rowIndex="3" GridPane.columnIndex="0" style="-fx-font-size: 14;"/>
-                                <TextField fx:id="beneficiaryField" GridPane.rowIndex="3" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" style="-fx-font-size: 14; -fx-pref-height: 40;"/>
+                                            <Label text="Beneficiary Name:" GridPane.rowIndex="3" GridPane.columnIndex="0" style="-fx-font-size: 14;"/>
+                                            <TextField fx:id="beneficiaryField" GridPane.rowIndex="3" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" style="-fx-font-size: 14; -fx-pref-height: 40;"/>
 
-                                <Label text="Amount (Numeric):" GridPane.rowIndex="4" GridPane.columnIndex="0" style="-fx-font-size: 14;"/>
-                                <TextField fx:id="amountField" GridPane.rowIndex="4" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" style="-fx-font-size: 14; -fx-pref-height: 40;"/>
+                                            <Label text="Amount (Numeric):" GridPane.rowIndex="4" GridPane.columnIndex="0" style="-fx-font-size: 14;"/>
+                                            <TextField fx:id="amountField" GridPane.rowIndex="4" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" style="-fx-font-size: 14; -fx-pref-height: 40;"/>
 
-                                <Label text="Amount (In Words):" GridPane.rowIndex="5" GridPane.columnIndex="0" style="-fx-font-size: 14;"/>
-                                <TextField fx:id="amountWordsField" editable="false" GridPane.rowIndex="5" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" style="-fx-font-size: 14; -fx-pref-height: 40; -fx-background-color: #f5f5f5;" />
+                                            <Label text="Amount (In Words):" GridPane.rowIndex="5" GridPane.columnIndex="0" style="-fx-font-size: 14;"/>
+                                            <TextField fx:id="amountWordsField" editable="false" GridPane.rowIndex="5" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" style="-fx-font-size: 14; -fx-pref-height: 40; -fx-background-color: #f5f5f5;" />
 
-                                <Label text="Signer's Name:" GridPane.rowIndex="6" GridPane.columnIndex="0" style="-fx-font-size: 14;"/>
-                                <TextField fx:id="signerField" GridPane.rowIndex="6" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" style="-fx-font-size: 14; -fx-pref-height: 40;"/>
-                                
-                                <Label text="Phone Number:" GridPane.rowIndex="7" GridPane.columnIndex="0" style="-fx-font-size: 14;"/>
-                                <TextField fx:id="phoneNumberField" GridPane.rowIndex="7" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" style="-fx-font-size: 14; -fx-pref-height: 40;" promptText="01XXXXXXXXX"/>
-                            </GridPane>
+                                            <Label text="Signer's Name:" GridPane.rowIndex="6" GridPane.columnIndex="0" style="-fx-font-size: 14;"/>
+                                            <TextField fx:id="signerField" GridPane.rowIndex="6" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" style="-fx-font-size: 14; -fx-pref-height: 40;"/>
+                                            
+                                            <Label text="Phone Number:" GridPane.rowIndex="7" GridPane.columnIndex="0" style="-fx-font-size: 14;"/>
+                                            <TextField fx:id="phoneNumberField" GridPane.rowIndex="7" GridPane.columnIndex="1" HBox.hgrow="ALWAYS" style="-fx-font-size: 14; -fx-pref-height: 40;" promptText="01XXXXXXXXX"/>
+                                        </GridPane>
 
-                            <VBox spacing="5" style="-fx-border-color: lightgray; -fx-padding: 10; -fx-border-radius: 5;">
-                                <Label text="Multiple Check Generation" style="-fx-font-weight: bold;"/>
-                                <GridPane hgap="10" vgap="5">
-                                    <Label text="Number of Checks:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                                    <TextField fx:id="numChecksField" GridPane.rowIndex="0" GridPane.columnIndex="1" HBox.hgrow="ALWAYS"/>
+                                        <VBox spacing="5" style="-fx-border-color: lightgray; -fx-padding: 10; -fx-border-radius: 5;" VBox.vgrow="NEVER">
+                                            <Label text="Multiple Check Generation" style="-fx-font-weight: bold;"/>
+                                            <GridPane hgap="10" vgap="5">
+                                                <Label text="Number of Checks:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                                <TextField fx:id="numChecksField" GridPane.rowIndex="0" GridPane.columnIndex="1" HBox.hgrow="ALWAYS"/>
 
-                                    <Label text="Time Interval:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                                    <ComboBox fx:id="intervalComboBox" GridPane.rowIndex="1" GridPane.columnIndex="1" HBox.hgrow="ALWAYS"/>
-                                </GridPane>
-                                <HBox spacing="5">
-                                    <Button text="Generate Multiple Checks" onAction="#generateMultipleChecks" HBox.hgrow="ALWAYS"/>
-                                    <Button text="Print All From Table" onAction="#printAllCheques" HBox.hgrow="ALWAYS"/>
+                                                <Label text="Time Interval:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                                <ComboBox fx:id="intervalComboBox" GridPane.rowIndex="1" GridPane.columnIndex="1" HBox.hgrow="ALWAYS"/>
+                                            </GridPane>
+                                            <HBox spacing="5">
+                                                <Button text="Generate Multiple Checks" onAction="#generateMultipleChecks" HBox.hgrow="ALWAYS"/>
+                                                <Button text="Print All From Table" onAction="#printAllCheques" HBox.hgrow="ALWAYS"/>
+                                            </HBox>
+                                        </VBox>
+
+                                        <Button text="Print and Save Single Check" onAction="#printAndSaveSingleCheck" maxWidth="Infinity"/>
+                                        
+                                    </VBox>
                                 </HBox>
                             </VBox>
-
-                            <Button text="Print and Save Single Check" onAction="#printAndSaveSingleCheck" maxWidth="Infinity"/>
                             
-                        </VBox>
-                    </HBox>
-                    
-                    <!-- Multiple Cheques Editing Table -->
-                    <VBox spacing="10" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS">
-                        <Label text="Multiple Cheques for Editing" style="-fx-font-weight: bold;"/>
-                        <TableView fx:id="multiChequeTableView" VBox.vgrow="ALWAYS">
-                            <columns>
-                                <TableColumn fx:id="multiDateColumn" text="Date" prefWidth="120" editable="true"/>
-                                <TableColumn fx:id="multiBeneficiaryColumn" text="Beneficiary" prefWidth="150" editable="false"/>
-                                <TableColumn fx:id="multiAmountColumn" text="Amount" prefWidth="100" editable="true"/>
-                                <TableColumn fx:id="multiAmountWordsColumn" text="Amount in Words" prefWidth="200" editable="false"/>
-                                <TableColumn fx:id="multiSignerColumn" text="Signer" prefWidth="120" editable="false"/>
-                                <TableColumn fx:id="multiPhoneNumberColumn" text="Phone Number" prefWidth="120" editable="false"/>
-                                <TableColumn fx:id="multiActionColumn" text="Action" prefWidth="100"/>
-                            </columns>
-                        </TableView>
-                        <HBox spacing="10">
-                            <Button text="Clear Table" onAction="#clearMultiChequeTable"/>
-                            <Button text="Print All" onAction="#printAllCheques"/>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Button text="Print Payment Plan" onAction="#printPaymentPlan" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 8 15; -fx-cursor: hand;" HBox.hgrow="NEVER"/>
-                        </HBox>
-                    </VBox>
+                            <!-- Multiple Cheques Editing Table -->
+                            <VBox spacing="10" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS" minHeight="100">
+                                <Label text="Multiple Cheques for Editing" style="-fx-font-weight: bold;"/>
+                                <TableView fx:id="multiChequeTableView" VBox.vgrow="ALWAYS">
+                                    <columns>
+                                        <TableColumn fx:id="multiDateColumn" text="Date" prefWidth="120" editable="true"/>
+                                        <TableColumn fx:id="multiBeneficiaryColumn" text="Beneficiary" prefWidth="150" editable="false"/>
+                                        <TableColumn fx:id="multiAmountColumn" text="Amount" prefWidth="100" editable="true"/>
+                                        <TableColumn fx:id="multiAmountWordsColumn" text="Amount in Words" prefWidth="200" editable="false"/>
+                                        <TableColumn fx:id="multiSignerColumn" text="Signer" prefWidth="120" editable="false"/>
+                                        <TableColumn fx:id="multiPhoneNumberColumn" text="Phone Number" prefWidth="120" editable="false"/>
+                                        <TableColumn fx:id="multiActionColumn" text="Action" prefWidth="100"/>
+                                    </columns>
+                                </TableView>
+                                <HBox spacing="10">
+                                    <Button text="Clear Table" onAction="#clearMultiChequeTable"/>
+                                    <Button text="Print All" onAction="#printAllCheques"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Button text="Print Payment Plan" onAction="#printPaymentPlan" style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 8 15; -fx-cursor: hand;" HBox.hgrow="NEVER"/>
+                                </HBox>
+                            </VBox>
+                        </items>
+                    </SplitPane>
                 </VBox>
             </Tab>
             <Tab text="Check Records">

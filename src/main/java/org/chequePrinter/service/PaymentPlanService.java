@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.ArrayList;
 
 public class PaymentPlanService {
     
@@ -26,7 +27,7 @@ public class PaymentPlanService {
     private static final float HEADER_FONT_SIZE = 14;
     private static final float CONTENT_FONT_SIZE = 12;
     private static final float LINE_HEIGHT = 25; // Increased for amount in words
-    private static final int MAX_CHEQUES_PER_PAGE = 20; // Reduced due to larger line height
+    private static final int MAX_CHEQUES_PER_PAGE = 16; // Fixed to match actual UI display
     
     /**
      * Shapes and reorders Arabic text for proper right-to-left rendering.
@@ -86,15 +87,23 @@ public class PaymentPlanService {
             })
             .sum();
         
-        // Calculate total pages needed
-        int totalPages = (int) Math.ceil((double) cheques.size() / MAX_CHEQUES_PER_PAGE);
+        int totalCheques = cheques.size();
+        int totalPages = (int) Math.ceil((double) totalCheques / MAX_CHEQUES_PER_PAGE);
         
+        System.out.println("=== PAYMENT PLAN DEBUG ===");
+        System.out.println("Total cheques: " + totalCheques);
+        System.out.println("Cheques per page: " + MAX_CHEQUES_PER_PAGE);
+        System.out.println("Total pages needed: " + totalPages);
+        
+        // Process cheques in batches of MAX_CHEQUES_PER_PAGE
         for (int pageNum = 0; pageNum < totalPages; pageNum++) {
             int startIndex = pageNum * MAX_CHEQUES_PER_PAGE;
-            int endIndex = Math.min(startIndex + MAX_CHEQUES_PER_PAGE, cheques.size());
-            List<ChequeData> pageData = cheques.subList(startIndex, endIndex);
+            int endIndex = Math.min(startIndex + MAX_CHEQUES_PER_PAGE, totalCheques);
             
-            createPaymentPlanPage(document, pageData, signerName, pageNum + 1, totalPages, totalAmount, cheques.size());
+            System.out.println("Page " + (pageNum + 1) + ": Cheques " + (startIndex + 1) + " to " + endIndex);
+            
+            List<ChequeData> pageData = new ArrayList<>(cheques.subList(startIndex, endIndex));
+            createPaymentPlanPage(document, pageData, signerName, pageNum + 1, totalPages, totalAmount, totalCheques);
         }
         
         return document;
@@ -206,11 +215,11 @@ public class PaymentPlanService {
             
             yPosition -= 10;
             
-            // Cheque data
-            int startIndex = (currentPage - 1) * MAX_CHEQUES_PER_PAGE;
+            // Cheque data - use 1-based index for display
             for (int i = 0; i < cheques.size(); i++) {
                 ChequeData cheque = cheques.get(i);
-                int chequeNumber = startIndex + i + 1;
+                // Calculate the actual cheque number based on page and position
+                int chequeNumber = (currentPage - 1) * MAX_CHEQUES_PER_PAGE + i + 1;
                 
                 contentStream.beginText();
                 contentStream.setFont(font, CONTENT_FONT_SIZE);
